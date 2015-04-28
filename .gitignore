@@ -1,0 +1,10 @@
+#On ignore les fichier temporaire de vi.
+*.swp
+
+#On ignore le cache
+cache/*
+
+#On ignore le fichier de connexion à la base et de constantes
+mvc/conn_bdd.php
+mvc/constants.php
+

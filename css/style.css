@@ -1,0 +1,103 @@
+@CHARSET "UTF-8";
+
+/*******************/
+/* CLASSE GENERALE */
+/*******************/
+.no-padding
+{
+	padding: 0;
+}
+
+.no-margin
+{
+	margin: 0;
+}
+
+.no-float
+{
+	float: none;
+}
+
+.overflow
+{
+	overflow: hidden;
+}
+
+.text-overflow
+{
+	text-overflow: ellipsis;
+}
+
+.bold
+{
+	font-weight: 600;
+}
+
+.extra-light
+{
+	font-weight: 200;
+}
+
+.thin
+{
+	font-weight: 100;
+}
+
+.text-italic
+{
+	font-style: italic;
+}
+
+.text-blue
+{
+	color:  #2780e3;
+}
+
+.position-fixe
+{
+	position: fixed;	
+}
+
+/******************/
+/* STYLE GENERALE */
+/******************/
+body
+{
+	background-color: #efefef;
+	color:  #515151;
+	cursor: default;
+}
+
+h1
+{
+	font-size: 28px;
+	font-weight: 300;
+}
+
+h2
+{
+	font-size: 24px;
+	font-weight: 500
+}
+
+h3
+{
+	font-size: 20px;
+	font-weight: 400;
+}
+
+.close-cross-top-right
+{
+	position: absolute;
+	top: 0px;
+	right: 5px;
+}
+
+/****************/
+/* STYLE ADMIN */
+/****************/
+.textarea-admin
+{
+	min-height: 250px;
+}
+
