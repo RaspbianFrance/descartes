@@ -81,23 +81,8 @@
 		*/
 		public function tableExist($table)
 		{
-				$query = '
-					SHOW TABLES LIKE :table
-				';
-				
-				$query_datas = array(
-					'table' => $table
-				);
-				
-				$req = $this->bdd->prepare($query);
-				$req->execute($query_datas);
-				$result = $req->fetch();
-				if(count($result))
-				{
-					return true;
-				}
-
-				return false;
+				$tables = $this->getAllTables();
+				return in_array($table, $tables);
 		}
 
 		/**
@@ -108,26 +93,8 @@
 		*/
 		public function fieldExist($field, $table)
 		{
-			if($this->tableExist($table))
-			{
-				$query = '
-					SHOW COLUMNS FROM ' . $table . ' LIKE :field
-				';
-				
-				$query_datas = array(
-					'field' => $field
-				);
-				
-				$req = $this->bdd->prepare($query);
-				$req->execute($query_datas);
-				$result = $req->fetch();
-				if(count($result))
-				{
-					return true;
-				}
-			}
-
-			return false;
+			$fields = $this->getColumnsForTable($table);	
+			return in_array($field, $fields);
 		}
 
 		/**
