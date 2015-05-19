@@ -29,51 +29,10 @@
 			$this->bdd = $bdd;
 		}
 
-		/**
-		 * Cette fonction joue une requete depuis une requete et un tableau d'argument
-		 * @param string $query : Requete à jouer
-		 * @param array $datas : Les données pour la requete. Si non fourni, vide par défaut.
-		 * @param const $return_type : Type de retour à utiliser. (Voir les constantes de la classe Model ici présente). Par défaut FETCHALL
-		 * @param const $fetch_mode : Le type de récupération a effectuer. Par défaut FETCH_ASSOC
-		 * @param boolean $debug : Par défaut à faux, si vrai retourne les infos de débug de la requete
-		 * @return mixed : Dépend du type spécifié dans $return_type
-		 */
-		public function runQuery($query, $datas = array(), $return_type = self::FETCHALL, $fetch_mode = PDO::FETCH_ASSOC, $debug = false)
-		{
-			$req = $this->bdd->prepare($query);
-			$req->setFetchMode($return_type);
-			$req->execute($datas);
+		/*
+			Fonctions relatives aux informations de la base
+		*/
 
-			if ($debug)
-			{
-				return $req->errorInfo();
-			}
-
-			switch ($return_type)
-			{
-				case self::NO :
-					$return = NULL;
-					break; 
-
-				case self::FETCH :
-					$return = $req->fetch();
-					break; 
-
-				case self::FETCHALL :
-					$return = $req->fetchAll();
-					break; 
-				
-				case self::ROWCOUNT : 
-					$return = $req->rowCount();
-					break;
-			
-				default : //Par défaut on récupère via fetchAll
-					$return = $req->fetchAll();
-			}
-
-			return $return;
-		}
-		
 		/**
 		* Cette fonction vérifie si une table existe
 		* @param string $table : Nom de la table
@@ -94,33 +53,8 @@
 		public function fieldExist($field, $table)
 		{
 			$fields = $this->getColumnsForTable($table);	
+			$fields = $fields ? explode(', ', $fields) : array();
 			return in_array($field, $fields);
-		}
-
-		/**
-		* Cette fonction permet de récupérer les éléments necessaires à une requete 'IN' depuis un tableau php
-		* @param string $values : Tableau PHP des valeurs
-		* @return array : Tableau des éléments nécessaires ('QUERY' => clause 'IN(...)' à ajouter à la query. 'DATAS' => tableau des valeurs à ajouter à celles passées en paramètre à l'execution de la requete
-		*/
-		public function generateInFromArray($values)
-		{
-			$return = array(
-				'QUERY' => '',
-				'PARAMS' => array(),
-			);
-			
-			$flags = array();
-
-			$values = count($values) ? $values : array();
-			
-			foreach ($values as $clef => $value)
-			{
-				$return['PARAMS']['in_value_' . $clef] = $value;
-				$flags[] = ':in_value_' . $clef;
-			}		
-				
-			$return['QUERY'] .= ' IN(' . implode(', ', $flags) . ')';
-			return $return;
 		}
 
 		/**
@@ -178,59 +112,6 @@
 		}
 
 		/**
-		 * Cette fonction permet de récupérer une table complète, éventuellement en la triant par une colonne, éventuellement en limitant le nombre de résultat, ou en sautant certains (notamment pour de la pagination)
-		 * @param string $table : Le nom de la table a récupérer
-		 * @param string $order_by : Le nom de la colonne par laquelle on veux trier les résultats. Si non fourni, tri automatique
-		 * @param string $desc : L'ordre de tri (asc ou desc). Si non défini, ordre par défaut (ASC)
-		 * @param string $limit : Le nombre maximum de résultats à récupérer (par défaut pas le limite)
-		 * @param string $offset : Le nombre de résultats à ignorer (par défaut pas de résultats ignorés)
-		 * @return array : Tableau avec dans chaque case une ligne de la base
-		 */
-		public function getAll($table, $order_by = '', $desc = false, $limit = false, $offset = false)
-		{
-			if ($this->tableExist($table))
-			{
-				$query = "SELECT " . $this->getColumnsForTable($table) . " FROM " . $table;
-
-				if ($order_by)
-				{
-					if ($this->fieldExist($order_by, $table))
-					{
-						$query .= ' ORDER BY '. $order_by;
-						if ($desc) 
-						{
-							$query .= ' DESC';
-						}
-					}
-				}
-
-				if ($limit !== false)
-				{
-					$query .= ' LIMIT :limit';
-					if ($offset !== false)
-					{
-						$query .= ' OFFSET :offset';
-					}
-				}
-
-				$req = $this->bdd->prepare($query);
-
-				if ($limit !== false)
-				{
-					$req->bindParam(':limit', $limit, PDO::PARAM_INT);
-					if ($offset !== false)
-					{
-						$req->bindParam(':offset', $offset, PDO::PARAM_INT);
-					}
-				}
-
-				$req->setFetchMode(PDO::FETCH_ASSOC);
-				$req->execute();
-				return $req->fetchAll();
-			}
-		}
-
-		/**
 		 * Cette fonction décrit une table et retourne un tableau sur cette description
 		 * @param string $table : Le nom de la table a analyser
 		 * @return mixed : Si la table existe un tableau la décrivant, sinon false
@@ -282,68 +163,100 @@
 			return $return['nb_lignes'];
 		}	 
 
+		/*
+			Fonctions d'execution des requetes ou de génération
+		*/
+
 		/**
-		 * Cette fonction permet d'insérer des données dans une table
-		 * @param string $table : Le nom de la table dans laquelle on veux insérer des données
-		 * @param array $datas : Les données à insérer
-		 * @return mixed : False en cas d'erreur, et le nombre de lignes insérées sinon
+		 * Cette fonction joue une requete depuis une requete et un tableau d'argument
+		 * @param string $query : Requete à jouer
+		 * @param array $datas : Les données pour la requete. Si non fourni, vide par défaut.
+		 * @param const $return_type : Type de retour à utiliser. (Voir les constantes de la classe Model ici présente). Par défaut FETCHALL
+		 * @param const $fetch_mode : Le type de récupération a effectuer. Par défaut FETCH_ASSOC
+		 * @param boolean $debug : Par défaut à faux, si vrai retourne les infos de débug de la requete
+		 * @return mixed : Dépend du type spécifié dans $return_type
 		 */
-		public function insertIntoTable($table, $datas)
+		public function runQuery($query, $datas = array(), $return_type = self::FETCHALL, $fetch_mode = PDO::FETCH_ASSOC, $debug = false)
 		{
-			$fields = $this->describeTable($table);
-			if (!$fields)
+			$req = $this->bdd->prepare($query);
+			$req->setFetchMode($return_type);
+			$req->execute($datas);
+
+			if ($debug)
 			{
-				return false;
+				return $req->errorInfo();
 			}
-			
-			$params = array();
-			$fieldNames = array();
 
-			//On s'assure davoir toutes les données, on evite les auto increment, on casse en cas de donnée absente
-			foreach ($fields as $nom => $field)
+			switch ($return_type)
 			{
-				if ($field['AUTO_INCREMENT'])
-				{
-					continue;
-				}
+				case self::NO :
+					$return = NULL;
+					break; 
 
-				//Si il manque un champs qui peux être NULL ou qu'il est rempli avec une chaine vide ou null, on passe au suivant				
-				if ((!isset($datas[$nom]) || $datas[$nom] === NULL || $datas[$nom] === '') && $field['NULL'])
-				{
-					continue;
-				}
+				case self::FETCH :
+					$return = $req->fetch();
+					break; 
+
+				case self::FETCHALL :
+					$return = $req->fetchAll();
+					break; 
 				
-				//Si il manque un champs qui a une valeur par défaut
-				if (!isset($datas[$nom]) && $field['HAS_DEFAULT'])
-				{
-					continue;
-				}
-
-				//Si il nous manque un champs
-				if (!isset($datas[$nom]))
-				{
-					return false;
-				}
-
-				$params[$nom] = $datas[$nom];
-				$fieldNames[] = $nom;
+				case self::ROWCOUNT : 
+					$return = $req->rowCount();
+					break;
+			
+				default : //Par défaut on récupère via fetchAll
+					$return = $req->fetchAll();
 			}
 
-			//On fabrique la requete
-			$query = "INSERT INTO " . $table . "(" . implode(', ', $fieldNames) . ") VALUES(:" . implode(', :', $fieldNames) . ")";
-
-			//On retourne le nombre de lignes insérées
-			return $this->runQuery($query, $params, self::ROWCOUNT);
+			return $return;
 		}
+		
+		/**
+		* Cette fonction permet de récupérer les éléments necessaires à une requete 'IN' depuis un tableau php
+		* @param string $values : Tableau PHP des valeurs
+		* @return array : Tableau des éléments nécessaires ('QUERY' => clause 'IN(...)' à ajouter à la query. 'DATAS' => tableau des valeurs à ajouter à celles passées en paramètre à l'execution de la requete
+		*/
+		public function generateInFromArray($values)
+		{
+			$return = array(
+				'QUERY' => '',
+				'PARAMS' => array(),
+			);
+			
+			$flags = array();
+
+			$values = count($values) ? $values : array();
+			
+			foreach ($values as $clef => $value)
+			{
+				$return['PARAMS']['in_value_' . $clef] = $value;
+				$flags[] = ':in_value_' . $clef;
+			}		
+				
+			$return['QUERY'] .= ' IN(' . implode(', ', $flags) . ')';
+			return $return;
+		}
+
+
+		/*
+			Fonctions de manipulations basiques des données
+		*/
 
 		/**
 		 * Cette fonction permet de récupérer des lignes en fonction de restrictions
 		 * @param string $table : Le nom de la table dans laquelle on veux recuperer la ligne
 		 * @param array $restrictions : Les restrictions que l'on veux appliquer
+		 * @param string $order_by : Le nom de la colonne par laquelle on veux trier les résultats. Si non fourni, tri automatique
+		 * @param string $desc : L'ordre de tri (asc ou desc). Si non défini, ordre par défaut (ASC)
+		 * @param string $limit : Le nombre maximum de résultats à récupérer (par défaut pas le limite)
+		 * @param string $offset : Le nombre de résultats à ignorer (par défaut pas de résultats ignorés)
 		 * @return mixed : False en cas d'erreur, sinon les lignes retournées
 		 */
-		public function getFromTableWhere($table, $restrictions = array())
+		public function getFromTableWhere($table, $restrictions = array(), $order_by = '', $desc = false, $limit = false, $offset = false)
 		{
+			$restrictions = !is_array($restrictions) ? array() : $restrictions;
+
 			$fields = $this->describeTable($table);
 			if (!$fields)
 			{
@@ -367,9 +280,43 @@
 				$wheres[] = $label . ' = :where_' . $label . ' ';
 			}
 
-			$query = "SELECT " . $this->getColumnsForTable($table) . " FROM " . $table . " WHERE 1 AND " . implode('AND ', $wheres);
+			$query = "SELECT " . $this->getColumnsForTable($table) . " FROM " . $table . " WHERE 1 " . (count($wheres) ? 'AND ' : '') . implode('AND ', $wheres);
 
-			return $this->runQuery($query, $params);
+			if ($order_by)
+			{
+				if ($this->fieldExist($order_by, $table))
+				{
+					$query .= ' ORDER BY '. $order_by;
+					if ($desc) 
+					{
+						$query .= ' DESC';
+					}
+				}
+			}
+
+			if ($limit !== false)
+			{
+				$query .= ' LIMIT :limit';
+				if ($offset !== false)
+				{
+					$query .= ' OFFSET :offset';
+				}
+			}
+
+			$req = $this->bdd->prepare($query);
+
+			if ($limit !== false)
+			{
+				$req->bindParam(':limit', $limit, PDO::PARAM_INT);
+				if ($offset !== false)
+				{
+					$req->bindParam(':offset', $offset, PDO::PARAM_INT);
+				}
+			}
+
+			$req->setFetchMode(PDO::FETCH_ASSOC);
+			$req->execute();
+			return $req->fetchAll();
 		}
 
 		/**
@@ -468,4 +415,59 @@
 
 			return $this->runQuery($query, $params, self::ROWCOUNT);
 		}
+
+		/**
+		 * Cette fonction permet d'insérer des données dans une table
+		 * @param string $table : Le nom de la table dans laquelle on veux insérer des données
+		 * @param array $datas : Les données à insérer
+		 * @return mixed : False en cas d'erreur, et le nombre de lignes insérées sinon
+		 */
+		public function insertIntoTable($table, $datas)
+		{
+			$fields = $this->describeTable($table);
+			if (!$fields)
+			{
+				return false;
+			}
+			
+			$params = array();
+			$fieldNames = array();
+
+			//On s'assure davoir toutes les données, on evite les auto increment, on casse en cas de donnée absente
+			foreach ($fields as $nom => $field)
+			{
+				if ($field['AUTO_INCREMENT'])
+				{
+					continue;
+				}
+
+				//Si il manque un champs qui peux être NULL ou qu'il est rempli avec une chaine vide ou null, on passe au suivant				
+				if ((!isset($datas[$nom]) || $datas[$nom] === NULL || $datas[$nom] === '') && $field['NULL'])
+				{
+					continue;
+				}
+				
+				//Si il manque un champs qui a une valeur par défaut
+				if (!isset($datas[$nom]) && $field['HAS_DEFAULT'])
+				{
+					continue;
+				}
+
+				//Si il nous manque un champs
+				if (!isset($datas[$nom]))
+				{
+					return false;
+				}
+
+				$params[$nom] = $datas[$nom];
+				$fieldNames[] = $nom;
+			}
+
+			//On fabrique la requete
+			$query = "INSERT INTO " . $table . "(" . implode(', ', $fieldNames) . ") VALUES(:" . implode(', :', $fieldNames) . ")";
+
+			//On retourne le nombre de lignes insérées
+			return $this->runQuery($query, $params, self::ROWCOUNT);
+		}
+
 	} 
