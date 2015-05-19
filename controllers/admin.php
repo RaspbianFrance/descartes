@@ -137,7 +137,7 @@
 
 			$fields = $db->describeTable($table);
 
-			$lignes = $db->getAll($table, '', false, 25, 25 * ($page - 1));
+			$lignes = $db->getFromTableWhere($table, null, '', false, 25, 25 * ($page - 1)); #On get sans conditions en paginant
 
 			//On renvoie sur l'accueil si ya pas de ligne (ca se presente par exemple sur des tables qui n'existes pas
 			if (!$lignes)
