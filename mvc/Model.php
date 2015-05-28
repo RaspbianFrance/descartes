@@ -315,7 +315,7 @@
 			}
 
 			$req->setFetchMode(PDO::FETCH_ASSOC);
-			$req->execute();
+			$req->execute($params);
 			return $req->fetchAll();
 		}
 
