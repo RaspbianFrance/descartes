@@ -168,7 +168,7 @@
 			
 			$route = $this->parseRoute($route); //On récupère la route parsé
 
-			//On regarde quelle route il nous faut
+			//On regarde quelle route il nous faut et on evite les routes qui commencent par '_', qui sont maintenant considérées comme privées
 			if (empty($route[1]))
 			{
 				$method = DEFAULT_METHOD;
@@ -183,8 +183,8 @@
 				$method = $prefixMethod . mb_convert_case($method, MB_CASE_TITLE);
 			}
 
-			//Si la méthode à appeler n'existe pas
-			if (!method_exists($controller, $method))
+			//Si la méthode à appeler n'existe pas ou si la route commencent par '_', signe qu'elle est un outils non accessibles
+			if (!method_exists($controller, $method) || mb_substr($method, 0, 1) == '_')
 			{
 				return $this->return404();
 			}
