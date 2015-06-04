@@ -87,7 +87,8 @@
 		{
 			$directory_to_remove = strstr(preg_replace('#http(s)?://#', '', HTTP_PWD), '/'); //On retire la partie protocole, et l'adresse du serveur de la partie de la route à ignorer
 			$route = mb_strcut($route, mb_strlen($directory_to_remove)); //On retire la partie à ignorer de la route
-			$route = preg_split('#[/?]#', $route); //On explose la route
+			$route = explode('?', $route)[0]; //on ne garde que ce qui précède les arguments
+			$route = preg_split('#[/]#', $route); //On explose la route
 
 			foreach($route as $key => $val) //On garde seulement les repertoires non vides
 			{
