@@ -314,8 +314,14 @@
 				}
 			}
 
+			//On associe les paramètres
+			foreach ($params as $label => $param)
+			{
+				$req->bindParam(':' . $label, $param);
+			}
+
 			$req->setFetchMode(PDO::FETCH_ASSOC);
-			$req->execute($params);
+			$req->execute();
 			return $req->fetchAll();
 		}
 
