@@ -315,7 +315,7 @@
 			}
 
 			//On associe les paramètres
-			foreach ($params as $label => $param)
+			foreach ($params as $label => &$param)
 			{
 				$req->bindParam(':' . $label, $param);
 			}
