@@ -6,7 +6,7 @@
 <?php 
 	$incs->headerAdmin('dashboard');
 ?>
-	<div class="section">
+	<div class="section admin-section">
 		<div class="container">
 			<div class="row">
 				<div class="col-lg-12">
