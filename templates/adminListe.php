@@ -6,7 +6,7 @@
 <?php 
 	$incs->headerAdmin($table);
 ?>
-	<div class="section">
+	<div class="section admin-section">
 		<div class="container">
 			<div class="row">
 				<?php

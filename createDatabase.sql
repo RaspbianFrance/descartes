@@ -10,3 +10,15 @@ CREATE TABLE IF NOT EXISTS exemple
 	valeur VARCHAR(255) NOT NULL,
 	PRIMARY KEY (id)
 );
+
+-- Create table of activation exemple
+CREATE TABLE IF NOT EXISTS exemple_activation
+(
+	id INT NOT NULL AUTO_INCREMENT,
+	exemple_id INT NOT NULL,
+	activate BOOLEAN DEFAULT 0,
+	PRIMARY KEY (id),
+	CONSTRAINT fk_exemple_exemple_activation
+        	FOREIGN KEY (exemple_id)     
+        	REFERENCES exemple(id)
+);

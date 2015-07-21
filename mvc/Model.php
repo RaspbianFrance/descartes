@@ -131,9 +131,11 @@
 			foreach ($fields as $field)
 			{
 				$fieldInfo = array();
+				$fieldInfo['NAME'] = $field['Field'];
 				$fieldInfo['NULL'] = $field['Null'] == 'NO' ? false : true;
 				$fieldInfo['AUTO_INCREMENT'] = $field['Extra'] == 'auto_increment' ? true : false;
 				$fieldInfo['PRIMARY'] = $field['Key'] == 'PRI' ? true : false;
+				$fieldInfo['FOREIGN'] = $field['Key'] == 'MUL' ? true : false;
 				$fieldInfo['UNIQUE'] = $field['Key'] == 'UNI' ? true : false;
 				$fieldInfo['TYPE'] = mb_convert_case(preg_replace('#[^a-z]#ui', '', $field['Type']), MB_CASE_UPPER);
 				$fieldInfo['SIZE'] = filter_var($field['Type'], FILTER_SANITIZE_NUMBER_INT);
@@ -143,6 +145,53 @@
 			}
 
 			return $return;
+		}
+
+		/**
+		 * Cette finction retourne la table et le champs référent pour un champ avec une foreign key
+		 * @param string $table : Le nom de la table qui contient le champ
+		 * @param string $field : Le nom du champ
+		 * @return mixed : False en cas d'erreur, un tableau avec 'table' en index pour la table et 'field' pour le champ
+		 */
+		public function getReferenceForForeign ($table, $field)
+		{
+			if (!$this->fieldExist($field, $table))
+			{
+				return false;
+			}
+
+			$query = 'SELECT referenced_table_name as table_name, referenced_column_name as field_name FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE WHERE table_name = :table AND column_name = :field AND referenced_table_name IS NOT NULL';
+			
+			$params = array(
+				'table' => $table,
+				'field' => $field,
+			);
+
+			return $this->runQuery($query, $params, self::FETCH);
+		}
+
+		/**
+		 * Cette fonction retourne les valeurs possibles pour un champ muni d'une clef étrangère
+		 * @param string $table : Le nom de la table qui contient le champ
+		 * @param string $field : Le nom du champ
+		 * @return mixed : Retourne les valeurs possible sous forme d'un tableau
+		 */
+		public function getPossibleValuesForForeign ($table, $field)
+		{
+			if (!$this->fieldExist($field, $table))
+			{
+				return false;
+			}
+
+			//On recupère le champs référence pour la foreign key
+			if (!$reference = $this->getReferenceForForeign($table, $field))
+			{
+				return false;
+			}
+
+			//On recupère les valeurs possible de la table
+			$query = 'SELECT DISTINCT ' . $reference['field_name'] . ' as possible_value FROM ' . $reference['table_name'];
+			return $this->runQuery($query);
 		}
 
 		/**

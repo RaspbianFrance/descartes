@@ -96,6 +96,11 @@ h3
 /****************/
 /* STYLE ADMIN */
 /****************/
+.admin-section
+{
+	padding-top: 55px;
+}
+
 .textarea-admin
 {
 	min-height: 250px;
