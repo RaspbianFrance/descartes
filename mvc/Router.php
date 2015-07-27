@@ -247,7 +247,17 @@
 			//Si on a du cache, on va déterminer le nom approprié
 			//Format de nom = <hash:nom_router.nom_methode><hash_datas>
 			$hashName = md5($controllerName . $methodName);
+			
+			//Par défaut pour le hash data on utilise les infos GET, POST et les params
 			$hashDatas = md5(json_encode($_GET) . json_encode($_POST) . json_encode($params));
+
+			//On va gérer le cas d'un cache custom
+			if (property_exists($controller, 'cache_custom_' . $methodName))
+			{
+				$cacheCustomName = 'cache_custom_' . $methodName;
+				$hashDatas = $controller->$cacheCustomName;
+			}
+
 			$fileName = $hashName . $hashDatas;
 
 			//Si il n'existe pas de fichier de cache pour ce fichier

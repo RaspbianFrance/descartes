@@ -19,9 +19,9 @@
 		{
 			require_once(PWD_MODEL . $class . '.php');
 		}
-		else if (file_exists(PWD . 'mvc/modules/' . $class . '.php'))
+		else if (file_exists(PWD_MODULES . $class . '.php'))
 		{
-			require_once(PWD . 'mvc/modules/' . $class . '.php');
+			require_once(PWD_MODULES . $class . '.php');
 		}
 	}
 	
