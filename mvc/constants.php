@@ -4,8 +4,8 @@
 	*/
 
 	//On définit les chemins
-        define('PWD', '/var/www/html/descartes-mvc/'); //On défini le chemin de base du site
-	define('HTTP_PWD', (isset($_SERVER['HTTPS']) ? 'https' : 'http') . '://' . (isset($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : 'localhost') . '/descartes-mvc/'); //On défini l'adresse url du site
+        define('PWD', '/var/www/descartes/'); //On défini le chemin de base du site
+	define('HTTP_PWD', (isset($_SERVER['HTTPS']) ? 'https' : 'http') . '://' . (isset($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : 'localhost') . '/'); //On défini l'adresse url du site
 
 	define('PWD_IMG', PWD . 'img/'); //Chemin dossier des images
 	define('HTTP_PWD_IMG', HTTP_PWD . 'img/'); //URL dossier des images
@@ -19,6 +19,7 @@
 	define('PWD_CONTROLLER', PWD . 'controllers/'); //Dossier des controllers
 	define('PWD_MODEL', PWD . 'model/'); //Dossier des models
 	define('PWD_TEMPLATES', PWD . 'templates/'); //Dossier des templates
+	define('PWD_MODULES', PWD . 'modules/'); //Dossier des modules
 	define('PWD_CACHE', PWD . 'cache/'); //Dossier du cache
 
 
@@ -31,7 +32,7 @@
 	define('LOG_ACTIVATED', 1); //On active les logs
 
 	//Réglages du cache
-	define('ACTIVATING_CACHE', false); //On desactive le cache
+	define('ACTIVATING_CACHE', true); //On desactive le cache
 
 	//Réglages divers
 	define('WEBSITE_TITLE', 'Descartes website'); //Le titre du site
@@ -45,6 +46,6 @@
 	//Réglages des identifiants de base de données
 	define('DATABASE_HOST', 'localhost'); //Hote de la bdd
 	define('DATABASE_NAME', 'descartes_example'); //Nom de la bdd
-	define('DATABASE_USER', 'votre_user'); //Utilisateur de la bdd
-	define('DATABASE_PASSWORD', 'votre_password'); //Password de l'utilisateur
+	define('DATABASE_USER', 'root'); //Utilisateur de la bdd
+	define('DATABASE_PASSWORD', ''); //Password de l'utilisateur
 
