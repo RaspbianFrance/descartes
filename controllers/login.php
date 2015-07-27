@@ -4,10 +4,6 @@
 */
 class login extends Controller
 {
-	public $cache_byDefault = 1;
-	public $cache_show = 1;
-
-	
 	public function before()
 	{
 		if (!empty($_SESSION['connect']) && !$_SESSION['connect'])
@@ -16,16 +12,7 @@ class login extends Controller
 		}
 	}
 	
-	/**
-	 * Cette fonction est un alias de show
-	 * @return void;
-	 */
 	public function byDefault()
-	{
-		$this->index();
-	}
-	
-	public function index()
 	{
 		if (!empty($_POST['login']) && !empty($_POST['password']))
 		{
