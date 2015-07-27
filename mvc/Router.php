@@ -252,10 +252,10 @@
 			$hashDatas = md5(json_encode($_GET) . json_encode($_POST) . json_encode($params));
 
 			//On va gérer le cas d'un cache custom
-			if (property_exists($controller, 'cache_custom_' . $methodName))
+			if (method_exists($controller, '_cache_custom_' . $methodName))
 			{
-				$cacheCustomName = 'cache_custom_' . $methodName;
-				$hashDatas = $controller->$cacheCustomName;
+				$cacheCustomName = '_cache_custom_' . $methodName;
+				$hashDatas = md5($controller->$cacheCustomName());
 			}
 
 			$fileName = $hashName . $hashDatas;
