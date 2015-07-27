@@ -296,7 +296,7 @@
 		 * Cette fonction permet de récupérer des lignes en fonction de restrictions
 		 * @param string $table : Le nom de la table dans laquelle on veux recuperer la ligne
 		 * @param array $restrictions : Les restrictions que l'on veux appliquer
-		 * @param string $order_by : Le nom de la colonne par laquelle on veux trier les résultats. Si non fourni, tri automatique
+		 * @param mixed $order_by : Le nom de la colonne par laquelle on veux trier les résultats ou son numero. Si non fourni, tri automatique
 		 * @param string $desc : L'ordre de tri (asc ou desc). Si non défini, ordre par défaut (ASC)
 		 * @param string $limit : Le nombre maximum de résultats à récupérer (par défaut pas le limite)
 		 * @param string $offset : Le nombre de résultats à ignorer (par défaut pas de résultats ignorés)
@@ -333,7 +333,8 @@
 
 			if ($order_by)
 			{
-				if ($this->fieldExist($order_by, $table))
+				//Si le champs existe ou si c'est un numeric inférieur ou egale au nombre  de champs dispo
+				if ($this->fieldExist($order_by, $table) || (is_numeric($order_by) && $order_by <= explode(',', $this->getColumnsForTable($table))))
 				{
 					$query .= ' ORDER BY '. $order_by;
 					if ($desc) 
