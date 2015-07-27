@@ -9,22 +9,7 @@
 	<div class="section admin-section">
 		<div class="container">
 			<div class="row">
-				<?php if ($success !== null) { ?>
-					<?php if (!$success) { ?>
-						<div class="alert alert-danger" role="alert">
-							<span class="fa fa-exclamation-triangle" aria-hidden="true"></span>
-							<span class="sr-only">Échec : </span>
-							Impossible d'ajouter la ligne !
-						</div>
-					<?php } else { ?>
-						<div class="alert alert-success" role="alert">
-							<span class="fa fa-check-circle" aria-hidden="true"></span>
-							<span class="sr-only">Succès : </span>
-							La ligne a été correctement insérée !
-						</div>
-					<?php } ?>
-				<?php } ?>
-
+				<?php $incs->alert(); ?>
 				<div class="col-lg-12">
 					<h2 class="section-title">Ajouter nouvelle entrée dans <?php secho($table); ?></h2>
 				</div>

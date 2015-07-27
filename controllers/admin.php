@@ -11,7 +11,7 @@
 		{
 			if (empty($_SESSION['connect']) || !$_SESSION['connect'])
 			{
-				header('Location: ' . $this->generateUrl("login","index"));
+				header('Location: ' . $this->generateUrl("login"));
 			}
 		}
 
@@ -53,7 +53,7 @@
 			return $this->render('adminAdd', array(
 				'fields' => $fields,
 				'table' => $table,
-				'success' => $success,
+				'type' => 'success', 'text' => $success,
 			));
 		}
 
@@ -81,7 +81,7 @@
 				'fields' => $fields,
 				'table' => $table,
 				'ligne' => $ligne,
-				'success' => $success,
+				'type' => 'success', 'text' => $success,
 				'id' => $id,
 			));
 		}
@@ -96,8 +96,17 @@
 			global $db;
 			$result = $db->insertIntoTable($table, $_POST);
 
+			if (!$result)
+			{
+				$_SESSION['alert'] = ['type' => 'danger', 'text' => 'Impossible d\'ajouter la ligne'];
+			}
+			else
+			{
+				$_SESSION['alert'] = ['type' => 'success', 'text' => 'La ligne a bien été ajoutée'];
+			}
+
 			//On renvoie sur la page d'ajout
-			return header('Location: ' . $this->generateUrl('admin', 'add', array($table, $result)));
+			return header('Location: ' . $this->generateUrl('admin', 'add', array($table)));
 		}
 
 		/**
@@ -117,27 +126,45 @@
 
 			global $db;
 			$result = $db->updateTableWhere($table, $_POST, ['id' => $id]);
+	
+			if (!$result)
+			{
+				$_SESSION['alert'] = ['type' => 'danger', 'text' => 'Impossible de modifier la ligne'];
+			}
+			else
+			{
+				$_SESSION['alert'] = ['type' => 'success', 'text' => 'La ligne a bien été modifiée'];
+			}
 
 			//On renvoie sur la page d'ajout
-			return header('Location: ' . $this->generateUrl('admin', 'edit', array($table, $id, $result)));
+			return header('Location: ' . $this->generateUrl('admin', 'edit', array($table, $id)));
 		}
 
 		/**
 		 * Cette fonction permet d'afficher les données d'une table
 		 * @param string $table : Le nom de la table afficher
+		 * @param mixed $orderBy : Le numero ou le nom du champs par lequel on veux trier (par défaut 1)
+		 * @param int $orderDesc : Si on doit trier par ordre ascendant ou descendant (par défaut ascendant = 0)
 		 * @param int $page : Non obligatoire, par défaut 1, le numéro de page à afficher (on sort 25 resultat par page)
 		 * @param int $nbDelete : Non obligatoire, par défaut null, le nombre de ligne supprimé s'il y a lieu
 		 */
-		public function liste($table, $page = 1, $nbDelete = null)
+		public function liste($table, $orderBy = 1, $orderDesc = 0, $page = 1)
 		{
 			global $db;
 
 			//On s'assure que la page est minimum à 1, et entier
 			$page = $page < 1 ? 1 : (int)$page;
 
+			//On gère l'initialisation via la session
+			$_SESSION['admin-liste-' . $table] = array(
+				'orderBy' => $orderBy,
+				'orderDesc' => $orderDesc,
+				'page' => $page,
+			);
+			
 			$fields = $db->describeTable($table);
 
-			$lignes = $db->getFromTableWhere($table, null, '', false, 25, 25 * ($page - 1)); #On get sans conditions en paginant
+			$lignes = $db->getFromTableWhere($table, null, $orderBy, $orderDesc, 25, 25 * ($page - 1)); #On get sans conditions en paginant
 
 			//On renvoie sur l'accueil si ya pas de ligne (ca se presente par exemple sur des tables qui n'existes pas
 			if (!$lignes)
@@ -147,14 +174,13 @@
 
 			//Je prépare les données de la pagination
 			$totalLignes = $db->countTable($table);
-			$pagination = internalTools::generatePagination($totalLignes, 25, $page, $this->generateUrl('admin', 'liste', array($table)));
+			$pagination = internalTools::generatePagination($totalLignes, 25, $page, $this->generateUrl('admin', 'liste', array($table, $orderBy, $orderDesc)));
 
 			$this->render('adminListe', array(
 				'fields' => $fields,
 				'lignes' => $lignes,
 				'pagination' => $pagination,
 				'table' => $table,
-				'nbDelete' => $nbDelete,
 			));
 		}
 
@@ -187,6 +213,33 @@
 			
 			global $db;
 			$nbDelete = $db->deleteFromTableWhere($table, ['id' => $id]);
-			return header('Location: ' . $this->generateUrl('admin', 'liste', array($table, 1, $nbDelete)));
+
+			if (!$nbDelete)
+			{
+				$_SESSION['alert'] = ['type' => 'danger', 'text' => 'Impossible de supprimer la ligne'];
+			}
+			else
+			{
+				$_SESSION['alert'] = ['type' => 'success', 'text' => 'La ligne a bien été supprimée'];
+			}
+
+			$arguments = ['table' => $table];
+
+			if(isset($_SESSION['admin-liste-' . $table]['orderBy']))
+			{
+				$arguments['orderBy'] = $_SESSION['admin-liste-' . $table]['orderBy'];
+			}	
+
+			if(isset($_SESSION['admin-liste-' . $table]['orderDesc']))
+			{
+				$arguments['orderDesc'] = $_SESSION['admin-liste-' . $table]['orderDesc'];
+			}	
+			
+			if(isset($_SESSION['admin-liste-' . $table]['page']))
+			{
+				$arguments['page'] = $_SESSION['admin-liste-' . $table]['page'];
+			}	
+
+			return header('Location: ' . $this->generateUrl('admin', 'liste', $arguments));
 		}
 	}

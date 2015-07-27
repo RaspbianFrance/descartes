@@ -106,3 +106,32 @@ h3
 	min-height: 250px;
 }
 
+.add-line-admin
+{
+	float: right;
+	font-size: 15px;
+	vertical-align: middle;
+}
+
+.add-line-admin:hover
+{
+	text-decoration: none;
+}
+
+.admin-liste-order
+{
+	font-size: 13px;
+}
+
+.admin-liste-order a
+{
+	text-decoration: none !important;
+	padding-left: 3px;
+	padding-right: 3px;
+	color: #808080;
+}
+
+.admin-liste-order a:hover
+{
+	color: #aaaaaa;
+}

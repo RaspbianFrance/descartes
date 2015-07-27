@@ -66,4 +66,21 @@
 		{
 			return $this->render('incs/pagination', array('pagination' => $pagination));
 		}
+
+		/**
+		 * Cette fonction gère les alertes
+		 * @param $_SESSION['alert'] : Une alerte à afficher au format ['type' => 'texte']. Le type peut être "success", "danger", "warning", "info"
+		 */
+		public function alert ()
+		{
+			if (!isset($_SESSION['alert']))
+			{
+				return null;
+			}
+
+			$alert = $_SESSION['alert'];
+			unset($_SESSION['alert']);
+
+			return $this->render('incs/alert', ['alert' => $alert]);
+		}
 	}
