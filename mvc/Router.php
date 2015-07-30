@@ -184,8 +184,8 @@
 				$method = $prefixMethod . mb_convert_case($method, MB_CASE_TITLE);
 			}
 
-			//Si la méthode à appeler n'existe pas ou si la route commencent par '_', signe qu'elle est un outils non accessibles
-			if (!method_exists($controller, $method) || mb_substr($method, 0, 1) == '_')
+			//Si la méthode à appeler n'existe pas, n'est pas appelable ou si la route commencent par '_', signe qu'elle est un outils non accessibles
+			if (!is_callable([$controller, $method]) || mb_substr($method, 0, 1) == '_')
 			{
 				return $this->return404();
 			}
