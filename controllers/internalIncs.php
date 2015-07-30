@@ -9,7 +9,7 @@
 		{
 			$title = (!empty($title) ? $title . ' - ' : '') . WEBSITE_TITLE;
 
-			return $this->render('incs/head', array(
+			return $this->render('internalIncs/head', array(
 				'title'			=> $title,
 				'description'		=> WEBSITE_DESCRIPTION,
 				'keywords'		=> WEBSITE_KEYWORDS,
@@ -28,25 +28,9 @@
 			);
 			
 			
-			return $this->render('incs/header', array(
+			return $this->render('internalIncs/header', array(
 				'pages'			=> $pages,
 				'actual_page'		=> $actual_page,
-			));
-		}
-
-		/**
-		 * Cette fonction retourne le header de l'admin du site
-		 * @param string $currentPage, le nom de la page actuel, il s'agit de la clef renseignée dans le tableau $page défini dans cette méthode
-		 */
-		public function headerAdmin($currentPage)
-		{
-			global $db;
-
-			$tables = $db->getAllTables();
-			
-			return $this->render('incs/headerAdmin', array(
-					'tables' => $tables,
-					'currentPage' => $currentPage,
 			));
 		}
 
@@ -55,7 +39,7 @@
 		 */	
 		public function footer()
 		{			
-			return $this->render('incs/footer');
+			return $this->render('internalIncs/footer');
 		}
 		
 		/**
@@ -64,7 +48,7 @@
 		 */
 		public function paginate($pagination)
 		{
-			return $this->render('incs/pagination', array('pagination' => $pagination));
+			return $this->render('internalIncs/pagination', array('pagination' => $pagination));
 		}
 
 		/**
@@ -81,6 +65,6 @@
 			$alert = $_SESSION['alert'];
 			unset($_SESSION['alert']);
 
-			return $this->render('incs/alert', ['alert' => $alert]);
+			return $this->render('internalIncs/alert', ['alert' => $alert]);
 		}
 	}

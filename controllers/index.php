@@ -15,11 +15,6 @@ class index extends Controller
 	 */	
 	public function byDefault()
 	{
-		return $this->render("index");
-	}
-
-	public function toto()
-	{
-		echo uniqid();
+		return $this->render("index/default");
 	}
 }

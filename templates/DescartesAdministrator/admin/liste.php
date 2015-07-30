@@ -4,7 +4,7 @@
 	$incs->head('Accueil');
 ?>
 <?php 
-	$incs->headerAdmin($table);
+	$this->headerAdmin($table);
 ?>
 	<div class="section admin-section">
 		<div class="container">
