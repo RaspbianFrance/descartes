@@ -329,14 +329,14 @@
 				$wheres[] = $label . ' = :where_' . $label . ' ';
 			}
 
-			$query = "SELECT " . $this->getColumnsForTable($table) . " FROM " . $table . " WHERE 1 " . (count($wheres) ? 'AND ' : '') . implode('AND ', $wheres);
+			$query = "SELECT * FROM " . $table . " WHERE 1 " . (count($wheres) ? 'AND ' : '') . implode('AND ', $wheres);
 
 			if ($order_by)
 			{
 				//Si le champs existe ou si c'est un numeric inférieur ou egale au nombre  de champs dispo
-				if ($this->fieldExist($order_by, $table) || (is_numeric($order_by) && $order_by <= explode(',', $this->getColumnsForTable($table))))
+				if (!array_key_exists($order_by, $fields) || (is_numeric($order_by) && $order_by <= count($fields)))
 				{
-					$query .= ' ORDER BY '. $order_by;
+					$query .= ' ORDER BY ' . $order_by;
 					if ($desc) 
 					{
 						$query .= ' DESC';
