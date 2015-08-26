@@ -1,5 +1,5 @@
 <?php
-	session_start();
+    session_start();
 
 	//On creé le csrf token si il n'existe pas
 	if (!isset($_SESSION['csrf']))
@@ -19,13 +19,14 @@
 	require_once('./mvc/ApiController.php');
 	require_once('./mvc/Router.php');
 	require_once('./mvc/Model.php');
-
+	
+	$logger = new DescartesLogger\logger(DescartesLogger\logger::INFO);
+	
 	#########
 	# MODEL #
 	#########
 	//On va appeler un modèle, est l'initialiser
 	$db = new DataBase($bdd);	
-	
 	###########
 	# ROUTAGE #
 	###########
