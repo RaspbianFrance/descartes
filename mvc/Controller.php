@@ -7,34 +7,12 @@
 		protected $id; //Id unique du controller actuel
 		protected $callDate; //Date ou l'on a appelé ce controller
 		protected $userIp; //Adresse Ip de l'utilisateur qui demande l'appel de ce controller
+
 		public function __construct()
 		{
 			$this->id = uniqid(); //On défini un id unique pour ce controller
 			$this->callDate = (new DateTime())->format('Y-m-d H:i:s');
 			$this->userIp = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '127.0.0.1';
-		}
-
-		/**
-		 * Cette fonction permet d'ecrire des logs
-		 * @param string $log = Log a ecrire
-		 * @return booleen : Vrai si succes, faux sinon
-		 */
-		protected function wlog($log)
-		{
-			if(!LOG_ACTIVATED) //Si on a désactivé les logs
-			{
-				return false; //On retourne faux
-			}
-
-			//On forge le message à logger
-			$message = 'FROM [Controller : ' . $this->id . ' - ' . get_called_class() . '] - ' . str_replace("\0", "", $log);
-
-			if(error_log($message)) //On log, si succes
-			{
-				return true; //On retourne vrai
-			}
-
-			return false;
 		}
 
 		/**

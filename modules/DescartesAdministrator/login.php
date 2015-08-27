@@ -21,7 +21,7 @@
 				$pseudo = $_POST['login'];
 				$password = $_POST['password'];
 				
-				if ($pseudo == ADMIN_LOGIN && $password == ADMIN_PASSWORD)
+				if ($pseudo == DESCARTESADMINISTRATOR_LOGIN && $password == DESCARTESADMINISTRATOR_PASSWORD)
 				{
 					$_SESSION['connect'] = true;
 					header('Location: ' . $this->generateUrl("admin"));
