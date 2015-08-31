@@ -10,16 +10,24 @@
 		<link rel="icon" type="image/png" href="<?php echo HTTP_PWD_IMG; ?>favicon.ico" />
 
 		<!-- CSS  -->
-		<link rel="stylesheet" type="text/css" href="<?php echo HTTP_PWD_CSS; ?>bootstrap.min.css" />
-		<link rel="stylesheet" type="text/css" href="<?php echo HTTP_PWD_CSS; ?>bootstrap-theme.min.css" />
-		<link rel="stylesheet" type="text/css" href="<?php echo HTTP_PWD_CSS; ?>font-awesome.min.css" />
-		<link rel="stylesheet" type="text/css" href="<?php echo HTTP_PWD_CSS; ?>bootstrap-slider.css" />
-		<link rel="stylesheet" type="text/css" href="<?php echo HTTP_PWD_CSS; ?>responsive-font.min.css" />
-		<link rel="stylesheet" type="text/css" href="<?php echo HTTP_PWD_CSS; ?>style.css" />
+		<?php if (!ENV_PRODUCTION) { ?>
+			<link rel="stylesheet" type="text/css" href="<?php echo HTTP_PWD_CSS; ?>bootstrap.min.css" />
+			<link rel="stylesheet" type="text/css" href="<?php echo HTTP_PWD_CSS; ?>bootstrap-theme.min.css" />
+			<link rel="stylesheet" type="text/css" href="<?php echo HTTP_PWD_CSS; ?>font-awesome.min.css" />
+			<link rel="stylesheet" type="text/css" href="<?php echo HTTP_PWD_CSS; ?>bootstrap-slider.css" />
+			<link rel="stylesheet" type="text/css" href="<?php echo HTTP_PWD_CSS; ?>responsive-font.min.css" />
+			<link rel="stylesheet" type="text/css" href="<?php echo HTTP_PWD_CSS; ?>style.css" />
+		<?php } else { ?>
+			<link rel="stylesheet" type="text/css" href="<?php echo $this->generateUrl('minify', 'css'); ?>" />
+		<?php } ?>
 
 		<!-- JS  -->
-		<script type="text/javascript" src="<?php echo HTTP_PWD_JS; ?>jquery-2.1.1.min.js"></script>
-		<script type="text/javascript" src="<?php echo HTTP_PWD_JS; ?>bootstrap.min.js"></script>
+		<?php if (!ENV_PRODUCTION) { ?>
+			<script type="text/javascript" src="<?php echo HTTP_PWD_JS; ?>jquery-2.1.1.min.js"></script>
+			<script type="text/javascript" src="<?php echo HTTP_PWD_JS; ?>bootstrap.min.js"></script>
+		<?php } else { ?>
+			<script type="text/javascript" src="<?php echo $this->generateUrl('minify', 'js'); ?>" />
+		<?php } ?>
 		
 	</head>
 	<body>
