@@ -15,6 +15,10 @@ class minify extends Controller
 	public function _cache_custom_css() { return 'always_use_me_css'; }
 	public function _cache_custom_js() { return 'always_use_me_js'; }
 
+	//Cache custom des headers, permet de jouer les bons headers avant d'appeler le cache (en l'occurence css et js)
+	public function _cache_custom_headers_css() { return header("Content-type: text/css"); }
+	public function _cache_custom_headers_js() { return header("Content-type: application/javascript"); }
+
 	/**
 	 * Cette fonction retourne la minification de tous les fichiers css indiqué dans le tableau $filesToMinify
 	 * On utilise un header css adapté
@@ -26,6 +30,7 @@ class minify extends Controller
 		$filesToMinify = array(
 			HTTP_PWD_CSS . 'bootstrap.min.css',
 			HTTP_PWD_CSS . 'bootstrap-theme.min.css',
+			'http://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700',
 			HTTP_PWD_CSS . 'font-awesome.min.css',
 			HTTP_PWD_CSS . 'bootstrap-slider.css',
 			HTTP_PWD_CSS . 'responsive-font.min.css',

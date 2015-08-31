@@ -258,6 +258,13 @@
 				$hashDatas = md5($controller->$cacheCustomName());
 			}
 
+			//On va gérer des headers custom sur le fichier de cache en appelant si elle existe la fonction des headers
+			if (method_exists($controller, '_cache_custom_headers_' . $methodName))
+			{
+				$cacheHeadersCustomName = '_cache_custom_headers_' . $methodName;
+				$controller->$cacheHeadersCustomName();
+			}
+
 			$fileName = $hashName . $hashDatas;
 
 			//Si il n'existe pas de fichier de cache pour ce fichier
@@ -305,7 +312,7 @@
 			}
 
 			$methodName = $this->parseMethod($route); //On récupère le nom de la méthode
-			$verifyCache = $this->verifyCache($route);
+			$verifyCache = $this->verifyCache($route); //Au passage en plus de vérifier le cache, on joue les headers utiles
 
 			//Si on ne doit pas utiliser de cache
 			if ($verifyCache === false)
