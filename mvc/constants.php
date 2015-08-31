@@ -3,6 +3,9 @@
 		Ce fichier défini les constantes du MVC
 	*/
 
+	//On définit si on est en prod ou non
+	define('ENV_PRODUCTION', true);
+
 	//On définit les chemins
         define('PWD', '/var/www/descartes/'); //On défini le chemin de base du site
 	define('HTTP_PWD', (isset($_SERVER['HTTPS']) ? 'https' : 'http') . '://' . (isset($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : 'localhost') . '/'); //On défini l'adresse url du site
@@ -28,20 +31,9 @@
 	define('DEFAULT_METHOD', 'byDefault'); //Nom méthode appelée par défaut
 	define('DEFAULT_BEFORE', 'before'); //Nom méthode before par défaut
 
-	//Réglages des logs
-	define('LOG_ACTIVATED', 1); //On active les logs
 
 	//Réglages du cache
 	define('ACTIVATING_CACHE', true); //On desactive le cache
-
-	//Réglages divers
-	define('WEBSITE_TITLE', 'Descartes website'); //Le titre du site
-	define('WEBSITE_DESCRIPTION', 'Un site propulsé par le micro-framework Descartes'); //Description du site
-	define('WEBSITE_KEYWORDS', 'Descartes Framework'); //Mots clefs du site
-	define('WEBSITE_AUTHOR', 'PLEB'); //Auteur du site
-
-	define('ADMIN_LOGIN', 'admin'); //Login de l'admin
-	define('ADMIN_PASSWORD', 'admin'); //Password de l'admin
 
 	//Réglages des identifiants de base de données
 	define('DATABASE_HOST', 'localhost'); //Hote de la bdd
@@ -49,3 +41,20 @@
 	define('DATABASE_USER', 'root'); //Utilisateur de la bdd
 	define('DATABASE_PASSWORD', ''); //Password de l'utilisateur
 
+	//Réglages divers
+	define('WEBSITE_TITLE', 'Descartes website'); //Le titre du site
+	define('WEBSITE_DESCRIPTION', 'Un site propulsé par le micro-framework Descartes'); //Description du site
+	define('WEBSITE_KEYWORDS', 'Descartes Framework'); //Mots clefs du site
+	define('WEBSITE_AUTHOR', 'PLEB'); //Auteur du site
+
+
+	//On va inclure les constantes de tous les modules (dans l'ordre du dossier)
+	foreach (scandir(PWD . 'mvc/modules-constants/') as $filename)
+	{
+		if ($filename == '.' || $filename == '..')
+		{
+			continue;
+		}
+
+		require_once(PWD . 'mvc/modules-constants/' . $filename);
+	}
