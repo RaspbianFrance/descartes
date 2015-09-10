@@ -19,6 +19,8 @@ CREATE TABLE IF NOT EXISTS exemple_activation
 	activate BOOLEAN DEFAULT 0,
 	PRIMARY KEY (id),
 	CONSTRAINT fk_exemple_exemple_activation
-        	FOREIGN KEY (exemple_id)     
+        	FOREIGN KEY (exemple_id)
         	REFERENCES exemple(id)
+		ON UPDATE CASCADE
+		ON DELETE CASCADE
 );
