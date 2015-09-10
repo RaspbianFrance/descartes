@@ -372,7 +372,7 @@
 			if ($order_by)
 			{
 				//Si le champs existe ou si c'est un numeric inférieur ou egale au nombre  de champs dispo
-				if (!array_key_exists($order_by, $fields) || (is_numeric($order_by) && $order_by <= count($fields)))
+				if (array_key_exists($order_by, $fields) || (is_numeric($order_by) && $order_by <= count($fields)))
 				{
 					$query .= ' ORDER BY ' . $order_by;
 					if ($desc) 
@@ -395,9 +395,11 @@
 
 			if ($limit !== false)
 			{
+				$limit = (int)$limit;
 				$req->bindParam(':limit', $limit, PDO::PARAM_INT);
 				if ($offset !== false)
 				{
+					$offset = (int)$offset;
 					$req->bindParam(':offset', $offset, PDO::PARAM_INT);
 				}
 			}
@@ -410,6 +412,7 @@
 
 			$req->setFetchMode(PDO::FETCH_ASSOC);
 			$req->execute();
+
 			return $req->fetchAll();
 		}
 
