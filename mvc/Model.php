@@ -295,7 +295,7 @@
 		/**
 		 * Cette fonction permet de récupérer des lignes en fonction de restrictions
 		 * @param string $table : Le nom de la table dans laquelle on veux recuperer la ligne
-		 * @param array $restrictions : Les restrictions que l'on veux appliquer
+		 * @param array $restrictions : Les restrictions sous la forme "label" => "valeur". Un operateur '<, >, <=, >=, !' peux précder le label pour modifier l'opérateur par défaut (=)
 		 * @param mixed $order_by : Le nom de la colonne par laquelle on veux trier les résultats ou son numero. Si non fourni, tri automatique
 		 * @param string $desc : L'ordre de tri (asc ou desc). Si non défini, ordre par défaut (ASC)
 		 * @param string $limit : Le nombre maximum de résultats à récupérer (par défaut pas le limite)
@@ -315,18 +315,56 @@
 			//On gère les restrictions
 			$wheres = array();
 			$params = array();
-
+			$i = 0;
 			foreach ($restrictions as $label => $value)
 			{
+				//Pour chaque restriction, on essaye de detecter un "! ou < ou > ou <= ou >="
+				$first_char = mb_substr($label, 0, 1);
+				$second_char = mb_substr($label, 1, 1);
+
+				switch(true)
+				{
+					//Important de traiter <= & >= avant < & >
+					case ('<=' == $first_char . $second_char) :
+						$trueLabel = mb_substr($label, 2);
+						$operator = '<=';
+						break;
+
+					case ('>=' == $first_char . $second_char) :
+						$trueLabel = mb_substr($label, 2);
+						$operator = '>=';
+						break;
+
+					case ('!' == $first_char) :
+						$trueLabel = mb_substr($label, 1);
+						$operator = '!=';
+						break;
+
+					case ('<' == $first_char) :
+						$trueLabel = mb_substr($label, 1);
+						$operator = '<';
+						break;
+
+					case ('>' == $first_char) :
+						$trueLabel = mb_substr($label, 1);
+						$operator = '>';
+						break;
+
+					default :
+						$trueLabel = $label;
+						$operator = '=';
+				}
+
 				//Si le champs pour la restriction n'existe pas on retourne false
-				if (!array_key_exists($label, $fields))
+				if (!array_key_exists($trueLabel, $fields))
 				{
 					return false;
 				}
-				
+
 				//On ajoute la restriction au WHERE
-				$params['where_' . $label] = $value;
-				$wheres[] = $label . ' = :where_' . $label . ' ';
+				$params['where_' . $trueLabel . $i] = $value;
+				$wheres[] = $trueLabel . ' ' . $operator . ' :where_' . $trueLabel . $i . ' ';
+				$i++;
 			}
 
 			$query = "SELECT * FROM " . $table . " WHERE 1 " . (count($wheres) ? 'AND ' : '') . implode('AND ', $wheres);
@@ -380,7 +418,7 @@
 		 * @param string $table : Le nom de la table dans laquelle on veux insérer des données
 		 * @param string $primary : La clef primaire qui sert à identifier la ligne a modifier
 		 * @param array $datas : Les données à insérer au format "champ" => "valeur"
-		 * @param array $restrictions : Un tableau des restrictions à appliquer sous forme "champ" => "valeur". Par défaut un tableau vide
+		 * @param array $restrictions : Les restrictions pour la mise à jour sous la forme "label" => "valeur". Un operateur '<, >, <=, >=, !' peux précder le label pour modifier l'opérateur par défaut (=)
 		 * @return mixed : False en cas d'erreur, sinon le nombre de lignes modifiées
 		 */
 		public function updateTableWhere ($table, $datas, $restrictions = array())
@@ -415,17 +453,56 @@
 
 			//On gère les restrictions
 			$wheres = array();
+			$i = 0;
 			foreach ($restrictions as $label => $value)
 			{
+				//Pour chaque restriction, on essaye de detecter un "! ou < ou > ou <= ou >="
+				$first_char = mb_substr($label, 0, 1);
+				$second_char = mb_substr($label, 1, 1);
+
+				switch(true)
+				{
+					//Important de traiter <= & >= avant < & >
+					case ('<=' == $first_char . $second_char) :
+						$trueLabel = mb_substr($label, 2);
+						$operator = '<=';
+						break;
+
+					case ('>=' == $first_char . $second_char) :
+						$trueLabel = mb_substr($label, 2);
+						$operator = '>=';
+						break;
+
+					case ('!' == $first_char) :
+						$trueLabel = mb_substr($label, 1);
+						$operator = '!=';
+						break;
+
+					case ('<' == $first_char) :
+						$trueLabel = mb_substr($label, 1);
+						$operator = '<';
+						break;
+
+					case ('>' == $first_char) :
+						$trueLabel = mb_substr($label, 1);
+						$operator = '>';
+						break;
+
+					default :
+						$trueLabel = $label;
+						$operator = '=';
+				}
+
 				//Si le champs pour la restriction n'existe pas on retourne false
-				if (!array_key_exists($label, $fields))
+				if (!array_key_exists($trueLabel, $fields))
 				{
 					return false;
 				}
-				
+
 				//On ajoute la restriction au WHERE
-				$params['where_' . $label] = $value;
-				$wheres[] = $label . ' = :where_' . $label . ' ';
+				$params['where_' . $trueLabel . $i] = $value;
+				$wheres[] = $trueLabel . ' ' . $operator . ' :where_' . $trueLabel . $i . ' ';
+				$i++;
 			}
 
 			//On fabrique la requete
@@ -438,7 +515,7 @@
 		/**
 		 * Cette fonction permet de supprimer des lignes d'une table en fonctions de restrictions
 		 * @param string $table : Le nom de la table dans laquelle on veux supprimer la ligne
-		 * @param array $restrictions : Les restrictions pour la suppression sous la forme "label" => "valeur"
+		 * @param array $restrictions : Les restrictions pour la suppression sous la forme "label" => "valeur". Un operateur '<, >, <=, >=, !' peux précder le label pour modifier l'opérateur par défaut (=)
 		 * @return mixed : False en cas d'erreur, sinon le nombre de lignes supprimées
 		 */
 		public function deleteFromTableWhere($table, $restrictions = array())
@@ -453,22 +530,59 @@
 			//On gère les restrictions
 			$wheres = array();
 			$params = array();
-
+			$i = 0;
 			foreach ($restrictions as $label => $value)
 			{
+				//Pour chaque restriction, on essaye de detecter un "! ou < ou > ou <= ou >="
+				$first_char = mb_substr($label, 0, 1);
+				$second_char = mb_substr($label, 1, 1);
+
+				switch(true)
+				{
+					//Important de traiter <= & >= avant < & >
+					case ('<=' == $first_char . $second_char) :
+						$trueLabel = mb_substr($label, 2);
+						$operator = '<=';
+						break;
+
+					case ('>=' == $first_char . $second_char) :
+						$trueLabel = mb_substr($label, 2);
+						$operator = '>=';
+						break;
+
+					case ('!' == $first_char) :
+						$trueLabel = mb_substr($label, 1);
+						$operator = '!=';
+						break;
+
+					case ('<' == $first_char) :
+						$trueLabel = mb_substr($label, 1);
+						$operator = '<';
+						break;
+
+					case ('>' == $first_char) :
+						$trueLabel = mb_substr($label, 1);
+						$operator = '>';
+						break;
+
+					default :
+						$trueLabel = $label;
+						$operator = '=';
+				}
+
 				//Si le champs pour la restriction n'existe pas on retourne false
-				if (!array_key_exists($label, $fields))
+				if (!array_key_exists($trueLabel, $fields))
 				{
 					return false;
 				}
-				
+
 				//On ajoute la restriction au WHERE
-				$params['where_' . $label] = $value;
-				$wheres[] = $label . ' = :where_' . $label . ' ';
+				$params['where_' . $trueLabel . $i] = $value;
+				$wheres[] = $trueLabel . ' ' . $operator . ' :where_' . $trueLabel . $i . ' ';
+				$i++;
 			}
 
 			$query = "DELETE FROM " . $table . " WHERE 1 AND " . implode('AND ', $wheres);
-
 			return $this->runQuery($query, $params, self::ROWCOUNT);
 		}
 
