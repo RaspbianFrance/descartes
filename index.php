@@ -11,14 +11,15 @@
 	# INCLUSIONS #
 	##############
 	//On va inclure l'ensemble des fichiers necessaires
-	require_once('./mvc/constants.php');
-	require_once('./mvc/autoload.php');
-	require_once('./mvc/conn_bdd.php');
-	require_once('./mvc/secho.php');
-	require_once('./mvc/Controller.php');
-	require_once('./mvc/ApiController.php');
-	require_once('./mvc/Router.php');
-	require_once('./mvc/Model.php');
+	require_once(__DIR__ . '/mvc/constants.php');
+	require_once(PWD . 'mvc/autoload.php');
+	require_once(PWD . 'mvc/conn_bdd.php');
+	require_once(PWD . 'mvc/secho.php');
+	require_once(PWD . 'mvc/Controller.php');
+	require_once(PWD . 'mvc/ApiController.php');
+	require_once(PWD . 'mvc/Router.php');
+	require_once(PWD . 'mvc/Model.php');
+
 
 	#########
 	# MODEL #
