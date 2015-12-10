@@ -8,3 +8,5 @@ cache/*
 mvc/conn_bdd.php
 mvc/constants.php
 
+
+/vendor/
