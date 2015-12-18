@@ -9,6 +9,7 @@
 	##############
 	require_once(__DIR__ . '/mvc/constants.php');
 	require_once(PWD . 'mvc/autoload.php');
+	require_once(PWD . 'vendor/autoload.php');
 	require_once(PWD . 'mvc/conn_bdd.php');
 	require_once(PWD . 'mvc/secho.php');
 	require_once(PWD . 'mvc/Controller.php');
