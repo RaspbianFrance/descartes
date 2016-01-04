@@ -40,7 +40,7 @@
 		 */
 		public function parseForHelp ($command)
 		{
-			return ($command[1] == '--help');
+			return (isset($command[1]) && $command[1] == '--help');
 		}
 
 		/**
@@ -93,6 +93,12 @@
 				return false;
 			}
 
+			//Si on a pas fourni de méthode
+			if (!isset($command[2]))
+			{
+				return false;
+			}
+
 			$methodName = $command[2];
 
 			//La méthode n'existe pas
@@ -131,17 +137,15 @@
 			}
 
 			//On construit la liste des arguments passés à la commande au format 'name' => 'value'
-			unset($command[1], $command[2]);
+			unset($command[0], $command[1], $command[2]);
 			$command = array_values($command);
-
 			$params = [];
 
 			foreach ($command as $param)
 			{
-				$param = explode('=', $param, 1);
+				$param = explode('=', $param, 2);
 				$paramName = str_replace('--', '', $param[0]);
 				$paramValue = $param[1];
-
 				$params[$paramName] = $paramValue;
 			}
 
@@ -213,7 +217,7 @@
 		 * @param boolean $missingArguments : Si il manque des arguments obligatoires pour la méthode (par défaut faux)
 		 * @param string : Le texte d'aide à afficher
 		 */
-		public function getHelp ($command, $controller = false, $method = false, $missingArguments = false;)
+		public function getHelp ($command, $controller = false, $method = false, $missingArguments = false)
 		{
 			$retour = '';
 
@@ -252,7 +256,7 @@
 				//On ajoute chaque paramètre au retour
 				foreach ($reflectionMethod->getParameters() as $parameter)
 				{
-					$retour .= ' --' . $parameter->getName() . "=<value" . ($parameter->isDefaultValueAvailable() ? ' (par défaut, ' . $parameter->getDefaultValue() . ')': '') . ">";
+					$retour .= ' --' . $parameter->getName() . "=<value" . ($parameter->isDefaultValueAvailable() ? ' (par défaut, ' . gettype($parameter->getDefaultValue()) . ':' . str_replace(PHP_EOL, '', print_r($parameter->getDefaultValue(), true)) . ')': '') . ">";
 				}
 
 				$retour .= "\n";
@@ -288,7 +292,7 @@
 				echo $this->getHelp($command, $controller, $method, true);
 				return false;
 			}
-			
+
 			//Si on doit appeler l'aide
 			if ($this->parseForHelp($command))
 			{
@@ -297,7 +301,7 @@
 			}
 
 			//Si tout est bien ok, on appel la méthode
-			return call_user_func_array(($controller, $method), $params);
+			return call_user_func_array([$controller, $method], $params);
 		}
 
 	} 

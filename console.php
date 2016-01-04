@@ -28,5 +28,5 @@
 	# ROUTAGE #
 	###########
 	//Partie gérant l'appel des controlleurs
-var_dump($argv);
-	//$console = new Console($argv);
+	$console = new Console($argv);
+	$console->executeCommand($console->getCommand());
