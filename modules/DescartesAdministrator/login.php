@@ -16,24 +16,23 @@
 		
 		public function byDefault()
 		{
-			if (!empty($_POST['login']) && !empty($_POST['password']))
+			if (empty($_POST['login']) || empty($_POST['password']))
 			{
-				$pseudo = $_POST['login'];
-				$password = $_POST['password'];
+				return $this->render("DescartesAdministrator/login/default");	
+			}
+
+			$pseudo = $_POST['login'];
+			$password = $_POST['password'];
 				
-				if ($pseudo == DESCARTESADMINISTRATOR_LOGIN && $password == DESCARTESADMINISTRATOR_PASSWORD)
-				{
-					$_SESSION['connect'] = true;
-					header('Location: ' . $this->generateUrl("admin"));
-					return true;
-				}
-				
-				return $this->render("loginIndex", array(
+			if ($pseudo != DESCARTESADMINISTRATOR_LOGIN || $password != DESCARTESADMINISTRATOR_PASSWORD)
+			{
+				return $this->render("DescartesAdministrator/login/default", array(
 					"message" => "Erreur lors de la connexion"
 				));
 			}
-		
-			$this->render("DescartesAdministrator/login/default");	
+
+			$_SESSION['connect'] = true;
+			return header('Location: ' . $this->generateUrl("admin"));
 		}
 		
 		public function logout()
