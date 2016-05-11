@@ -7,16 +7,16 @@
 	##############
 	# INCLUSIONS #
 	##############
-	require_once(__DIR__ . '/mvc/constants.php');
-	require_once(PWD . 'mvc/autoload.php');
+	require_once(__DIR__ . '/app/load-constants.php');
+	require_once(PWD . 'app/autoload.php');
 	require_once(PWD . 'vendor/autoload.php');
-	require_once(PWD . 'mvc/conn_bdd.php');
-	require_once(PWD . 'mvc/secho.php');
-	require_once(PWD . 'mvc/Controller.php');
-	require_once(PWD . 'mvc/ApiController.php');
-	require_once(PWD . 'mvc/Router.php');
-	require_once(PWD . 'mvc/Model.php');
-	require_once(PWD . 'mvc/Console.php');
+	require_once(PWD . 'app/conn_bdd.php');
+	require_once(PWD . 'app/secho.php');
+	require_once(PWD . 'app/Controller.php');
+	require_once(PWD . 'app/ApiController.php');
+	require_once(PWD . 'app/Router.php');
+	require_once(PWD . 'app/Model.php');
+	require_once(PWD . 'app/Console.php');
 
 	#########
 	# MODEL #
