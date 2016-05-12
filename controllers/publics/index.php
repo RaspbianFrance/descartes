@@ -1,8 +1,6 @@
 <?php
-/**
- * page d'index
- */
-class index extends Controller
+namespace publics\controllers;
+class index extends \Controller
 {
 	//Pour ajouter du cache, ajouter un attribut :
 	//public $cache_nomMethode = durée_cache_en_minute;
