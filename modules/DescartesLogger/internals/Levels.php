@@ -1,6 +1,6 @@
 <?php
 
-namespace DescartesLogger;
+namespace modules\DescartesLogger\internals;
 
 /**
  * Cette classe est la principale classe de DescartesLogger, elle reprend en grande partie le logger PSR-3

@@ -1,6 +1,6 @@
 <?php
 
-namespace DescartesLogger;
+namespace modules\DescartesLogger\internals;
 
 /**
  * Cette classe est la principale classe de DescartesLogger, elle reprend en grande partie le logger PSR-3
@@ -35,13 +35,13 @@ class Logger extends Psr\Log\AbstractLogger
 
 		//On va essayer d'utiliser des constantes pour les différentes infos du logger.
 		//Si on ne trouve pas on va définir une valeur par défaut
-		$activ = DESCARTESLOGGER_ACTIV;
+		$active = DESCARTESLOGGER_ACTIVE;
 		$minLevel = DESCARTESLOGGER_MIN_LEVEL;
 		$email = DESCARTESLOGGER_EMAIL;
 		$minLevelEmail = DESCARTESLOGGER_MIN_LEVEL_EMAIL;
 		$file = DESCARTESLOGGER_FILE;
 
-		if (!$activ)
+		if (!$active)
 		{
 			return 0;
 		}

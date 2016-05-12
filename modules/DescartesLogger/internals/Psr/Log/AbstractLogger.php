@@ -1,6 +1,6 @@
 <?php
 
-namespace DescartesLogger\Psr\Log;
+namespace modules\DescartesLogger\internals\Psr\Log;
 
 /**
  * This is a simple Logger implementation that other Loggers can inherit from.

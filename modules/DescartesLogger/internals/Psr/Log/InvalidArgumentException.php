@@ -1,6 +1,6 @@
 <?php
 
-namespace DescartesLogger\Psr\Log;
+namespace modules\DescartesLogger\internals\Psr\Log;
 
 class InvalidArgumentException extends \InvalidArgumentException
 {

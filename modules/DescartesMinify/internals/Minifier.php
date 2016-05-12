@@ -1,5 +1,5 @@
 <?php
-	namespace DescartesMinify;
+	namespace modules\DescartesMinify\internals;
 
 	/**
 	 * Cette classe permet de minifier un ensemble de fichiers de façon à optimiser les requetes HTTP vers un site
