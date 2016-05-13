@@ -6,7 +6,7 @@
 	class Model
 	{
 		//Les variables internes au Model
-		var $PDO;
+		var $bdd;
 
 		//Les constantes des différents types de retours possibles
 		const NO = 0; //Pas de retour
@@ -18,11 +18,11 @@
 		 * Constructeur du modèle
 		 * @param mixed : La connexion PDO à utilisée, si non fournie pas de connexion PDO
 		 */
-		public function __construct($pdo = false)
+		public function __construct($bdd = false)
 		{
 			if ($bdd)
 			{
-				$this->setPDO($pdo);
+				$this->setBdd($bdd);
 			}
 		}
 
@@ -34,14 +34,14 @@
 		 * @param string $password : Le mot de passe à employer
 		 * @return mixed : Un objet PDO ou false en cas d'erreur
 		 */
-		public function connect($host, $dbname, $user, $password)
+		public static function connect($host, $dbname, $user, $password)
 		{
 			try
 			{
 				// On se connecte à MySQL
 				$pdo = new PDO('mysql:host=' . $host . ';dbname=' . $dbname, $user, $password, array(PDO::ATTR_PERSISTENT => TRUE));
 				$pdo->exec("SET CHARACTER SET utf8");
-				return $bdd;
+				return $pdo;
 			}
 			catch(Exception $e)
 			{
@@ -49,19 +49,19 @@
 			}
 		}
 
-		public function getPDO()
+		public function getBdd()
 		{
-			return $this->PDO;	
+			return $this->bdd;	
 		}
 
-		public function setPDO(PDO $pdo)
+		public function setBdd(PDO $bdd)
 		{
-			$this->PDO = $pdo;
+			$this->bdd = $bdd;
 		}
 
 		/*
 			Fonctions relatives aux informations de la base
-		*/
+		 */
 
 		/**
 		* Cette fonction vérifie si une table existe

@@ -12,27 +12,21 @@
 	# INCLUSIONS #
 	##############
 	//On va inclure l'ensemble des fichiers necessaires
-	require_once(__DIR__ . '/app/load-constants.php');
-	require_once(PWD . 'app/autoload.php');
-	require_once(PWD . 'vendor/autoload.php');
-	require_once(PWD . 'app/conn_bdd.php');
-	require_once(PWD . 'app/secho.php');
-	require_once(PWD . 'app/Controller.php');
-	require_once(PWD . 'app/ApiController.php');
-	require_once(PWD . 'app/Router.php');
-	require_once(PWD . 'app/Model.php');
-
+	require_once(__DIR__ . '/descartes/load-constants.php');
+	require_once(PWD . '/descartes/autoload.php');
+	require_once(PWD . '/vendor/autoload.php');
+	require_once(PWD . '/routes.php');
 
 	#########
 	# MODEL #
 	#########
 	//On va appeler un modèle, est l'initialiser
-	$db = new Model($bdd);
+	$bdd = Model::connect(DATABASE_HOST, DATABASE_NAME, DATABASE_USER, DATABASE_PASSWORD);
 
 	###########
 	# ROUTAGE #
 	###########
 	//Partie gérant l'appel des controlleurs
-	$router = new Router($_SERVER['REQUEST_URI']);
-	$router->loadRoute($router->getRoute());
+	$router = new Router($_SERVER['REQUEST_URI'], $routes);
+	$router->callRouterForUrl($router->getCallUrl(), $router->getRoutes());
 

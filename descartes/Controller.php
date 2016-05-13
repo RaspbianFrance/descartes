@@ -8,6 +8,9 @@
 		protected $callDate; //Date ou l'on a appelé ce controller
 		protected $userIp; //Adresse Ip de l'utilisateur qui demande l'appel de ce controller
 
+		/**
+		 * Le constructeur du Controller
+		 */
 		public function __construct()
 		{
 			$this->id = uniqid(); //On défini un id unique pour ce controller
