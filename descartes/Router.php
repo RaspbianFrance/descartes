@@ -102,7 +102,7 @@
 				$routePattern = preg_replace('#/$#', '/?', $routePattern);
 
 				//Si l'url match pas, on passe à la suivante
-				if (!preg_match('#' . $routePattern . '$#U', $url))
+				if (!preg_match('#^' . $routePattern . '$#U', $url))
 				{
 					continue;
 				}
@@ -140,7 +140,7 @@
 
 			//On récupère les valeurs des flags
 			$values = [];
-			if (!preg_match('#' . $routePattern . '$#U', $url, $values))
+			if (!preg_match('#^' . $routePattern . '$#U', $url, $values))
 			{
 				return false;
 			}

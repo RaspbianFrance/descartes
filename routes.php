@@ -1,10 +1,10 @@
 <?php
 	$routes = array(
 		'Index' => [
-			'home' => '',
+			'home' => '/',
 			'showValue' => [
-				'/show-value/{firstValue}',
-				'/show-value/{firstValue}/{secondValue}',
+				'/show-value/{firstValue}/',
+				'/show-value/{firstValue}/{secondValue}/',
 			],
 		],
 	);

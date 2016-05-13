@@ -25,6 +25,6 @@ class Index extends \Controller
 	 */
 	public function showValue($firstValue, $secondValue = false)
 	{
-		return $this->render('Index/showValue', [$firstValue, $secondValue]);
+		return $this->render('Index/showValue', ['firstValue' => $firstValue, 'secondValue' => $secondValue]);
 	}
 }
