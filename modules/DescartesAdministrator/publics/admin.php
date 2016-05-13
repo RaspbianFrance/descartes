@@ -1,5 +1,5 @@
 <?php
-	namespace DescartesAdministrator;
+	namespace modules\DescartesAdministrator\publics;
 
 	/**
 	 * Ce controller gère l'ensemble des fonctions de l'administration

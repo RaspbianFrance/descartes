@@ -6,9 +6,6 @@
 </head>
 <body>
 	<h1>It works !</h1>
-	<p>Je suis une page par défaut</p>
-	<ul>
-		<li><a href="">Une page de méthode</a></li>
-	</ul>
+	<p>Je suis une page de méthode</p>
 </body>
 </html>

@@ -1,5 +1,5 @@
 <?php
-	namespace DescartesAdministrator;
+	namespace modules\DescartesAdministrator\publics;
 
 	/**
 	 * page de login Admin

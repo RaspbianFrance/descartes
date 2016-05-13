@@ -4,6 +4,8 @@
 	 *	Cette page gère les scripts appelés en ligne de commande
 	 */
 
+	define('FROM_WEB', false);
+
 	##############
 	# INCLUSIONS #
 	##############
