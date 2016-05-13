@@ -1,5 +1,5 @@
 <?php
-	namespace publics\controllers;
+	namespace controllers\publics;
 	/**
 	 * Cette classe gère la partie login du système d'admin
 	 */

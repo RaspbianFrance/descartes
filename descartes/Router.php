@@ -147,6 +147,8 @@
 			}
 			unset($values[0]);
 
+			$values = array_map('rawurldecode', $values);
+
 			//On retourne les valeurs associées aux flags
 			return array_combine($flags, $values);
 		}

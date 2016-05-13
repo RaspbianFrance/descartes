@@ -1,5 +1,5 @@
 <?php
-	namespace publics\controllers;
+	namespace controllers\publics;
 	use \modules\DescartesMinify\internals\Minifier as Minifier;
 
 	/**
