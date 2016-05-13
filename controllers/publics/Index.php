@@ -15,7 +15,7 @@ class Index extends \Controller
 	 */	
 	public function home()
 	{
-		return $this->render("index/home");
+		return $this->render("Index/home");
 	}
 
 	/**
@@ -25,6 +25,6 @@ class Index extends \Controller
 	 */
 	public function showValue($firstValue, $secondValue = false)
 	{
-		return $this->render('index/showValue', [$firstValue, $secondValue]);
+		return $this->render('Index/showValue', [$firstValue, $secondValue]);
 	}
 }

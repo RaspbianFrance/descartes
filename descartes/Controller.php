@@ -31,11 +31,12 @@
 				$$clef = $value;
 			}
 
-			$chemin_template = PWD_TEMPLATES . $template . '.php';
-			if(file_exists($chemin_template))
+			$templatePath = PWD_TEMPLATES . '/' . $template . '.php';
+
+			if(file_exists($templatePath))
 			{
-				require($chemin_template);
-				unset($chemin_template);
+				require($templatePath);
+				unset($templatePath);
 				return true;
 			}
 
@@ -62,7 +63,7 @@
 			}
 
 			$url .= '/' . $controller;
-			$url .= $method ? '/' . $method : '');
+			$url .= $method ? '/' . $method : '';
 
 			//On ajoute les paramètres framework	
 			foreach ($params as $valeur)
