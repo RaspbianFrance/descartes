@@ -376,10 +376,12 @@
 
 			$checkForCache = $this->checkForCache($methodToCall, $params);
 
+			//On instancie le controller
+			$controller = new $methodToCall['controller']();
+
 			//Si on ne doit pas utiliser de cache
                         if ($checkForCache === false)
 			{
-				$controller = new $methodToCall['controller']();
 				call_user_func_array([$controller, $methodToCall['method']], $params);
                                 return null;
                         }
@@ -389,7 +391,7 @@
                         {
                                 //On créer le fichier avec le contenu adapté
                                 ob_start();
-				call_user_func_array([$controller, $method], $params);
+				call_user_func_array([$controller, $methodToCall['method']], $params);
                                 $content = ob_get_contents();
                                 file_put_contents($checkForCache['file'], $content);
                                 ob_end_clean();

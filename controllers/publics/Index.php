@@ -3,10 +3,11 @@ namespace controllers\publics;
 class Index extends \Controller
 {
 	//Pour ajouter du cache, ajouter un attribut :
-	//public $cacheNomMethode = durée_cache_en_minute;
+	public $cacheHome = 10;
 
 	//Pour ajouter un cache custom, ajouter une methode :
-	//public function _cacheCustomNomMethod() { return $yourCustomTraitements }
+	public function _cacheCustomHome() { return 'v1'; }
+
 	//Pour ajouter un header sur le cache, ajouter une methode :
 	//public function _cacheHeaderNomMethod() { return header("Content-type: text/plain") }
 

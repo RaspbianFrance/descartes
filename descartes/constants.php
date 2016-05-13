@@ -14,9 +14,6 @@
 	$port = ($_SERVER['SERVER_PORT'] == 80) ? '' : $_SERVER['SERVER_PORT'];
 
 	define('PWD', substr(__DIR__, 0, strrpos(__DIR__, '/'))); //On défini le chemin de base du site
-
-	var_dump(PWD);
-
 	define('HTTP_PWD', $protocol . $serverName . $port . $urlDirPath); //On défini l'adresse url du site
 
 	//On définit le chemin des ressources back
