@@ -8,16 +8,16 @@
 	class minify extends Controller
 	{
 		//Cache de la minification CSS et JS, 30j
-		public $cache_css = DESCARTESMINIFY_CACHE_CSS_DURATION;
-		public $cache_js = DESCARTESMINIFY_CACHE_JS_DURATION;
+		public $cacheCss = DESCARTESMINIFY_CACHE_CSS_DURATION;
+		public $cacheJs = DESCARTESMINIFY_CACHE_JS_DURATION;
 
 		//Cache custom, permet de tj utiliser le cache
-		public function _cache_custom_css() { return 'always_use_me_css'; }
-		public function _cache_custom_js() { return 'always_use_me_js'; }
+		public function _cacheCustomCss() { return 'always_use_me_css'; }
+		public function _cacheCustomJs() { return 'always_use_me_js'; }
 
 		//Cache custom des headers, permet de jouer les bons headers avant d'appeler le cache (en l'occurence css et js)
-		public function _cache_custom_headers_css() { return header("Content-type: text/css"); }
-		public function _cache_custom_headers_js() { return header("Content-type: application/javascript"); }
+		public function _cacheHeaderCss() { return header("Content-type: text/css"); }
+		public function _cacheHeaderJs() { return header("Content-type: application/javascript"); }
 
 		/**
 		 * Cette fonction retourne la minification de tous les fichiers css indiqué dans le tableau $filesToMinify

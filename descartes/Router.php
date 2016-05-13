@@ -4,65 +4,53 @@
 	 */
 	class Router
 	{
-		public $uri; //URI actuelle
-		public $controllerName; //Nom du controleur obtenu depuis l'uri de création
-		public $methodName; //Nom de la méthode obtenu depuis l'uri de création
-		public $params; //Tableau des paramètres GET passé dans l'uri
+		private $callUrl; //L'URL appelée, depuis la racine du framework
+		private $routes; //Les routes du site
 
 		/**
 		 * Constructeur du router
-		 * @param string $uri : L'uri à l'URI appelée, tel que retournée par $_SERVER['REQUEST_URI']
+		 * @param string $url : L'url appelée, tel que retournée par $_SERVER['REQUEST_URI']
+		 * @param string $routes : Les routes du site
 		 */
-		public function __construct($uri = '')
+		public function __construct($url, $routes)
 		{
-			if ($uri)
-			{
-				$this->setUri($uri);
-				$this->setControllerName($this->parseController($uri));
-				$this->setMethodName($this->parseMethod($uri));
-				$this->setParams($this->parseParams($uri));
-			}
+			//On va débarasser l'url des parties inutiles pour conserver uniquement l'adresse depuis la racine du framework et sans les ancres et paramètres
+			$this->setCallUrl($this->filterUrl($url));
+			$this->setRoutes($routes);
 		}
 
-		//Getters et setters
-		public function getUri()
+		public function setCallUrl($url)
 		{
-			return $this->uri;
+			$this->callUrl = $url;
 		}
 
-		public function setUri($value)
+		public function getCallUrl()
 		{
-			$this->uri = $value;
+			return $this->callUrl;
 		}
 
-		public function getControllerName()
+		public function setRoutes($routes)
 		{
-			return $this->controllerName;
+			$this->routes = $routes;
 		}
 
-		public function setControllerName($value)
+		public function getRoutes()
 		{
-			$this->controllerName = $value;
+			return $this->routes;
 		}
 
-		public function getMethodName()
+		/**
+		 * Cette méthode nettoie une url pour en conserver seulement la partie qui suit la racine du framework et sans les ancres et parametres
+		 * @param string $url : L'url à nettoyer
+		 * @return string : L'url nettoyée
+		 */
+		public function filterUrl($url)
 		{
-			return $this->methodName;
-		}
-
-		public function setMethodName($value)
-		{
-			$this->methodName = $value;
-		}
-
-		public function getParams()
-		{
-			return $this->params;
-		}
-
-		public function setParams($value)
-		{
-			$this->params = $value;
+			$partToRemove = strstr(preg_replace('#http(s)?://#', '', HTTP_PWD), '/'); //On calcul la partie à ignorer de l'url
+			$url = mb_strcut($url, mb_strlen($directory_to_remove)); //On retire la partie à ignorer de l'url
+			$url = explode('?', $route)[0]; //on ne garde que ce qui précède les arguments
+			$url = explode('#', $route)[0]; //On ne garde que ce qui précède les ancres
+			return $url;
 		}
 
 		/**
@@ -75,79 +63,113 @@
 			die();
 		}
 
+
 		/**
-		 * Retourne l'uri parsée sous forme de tableau avec seulement les éléments clefs
-		 * @param string $uri : L'uri à analyser, tel que retournée par $_SERVER['REQUEST_URI']
-		 * @return array : Le tableau de l'uri parsée
+		 * Transforme le tableau des routes en un tableau exploitable
+		 * @param array &$urls : Le tableau à remplir avec les routes générées
+		 * @param array $routes : Le tableau des routes originel
+		 * @param string $methodToCallLabel : Le label correspondant à la méthode à appeler. Par défaut vide, il sera automatiquement rempli petit à petit.
+		 * @return none : La fonction ne retourne rien mais rempli le tableau passé via $urls, sous la forme ['methode à appeler' => 'route correspondante]
 		 */
-		public function parseUri($uri)
+		function generateRoutes(&$urls, $routes, $label = '')
 		{
-			//On va débarasser l'uri de l'adresse du site
-			$directoryToRemove = strstr(preg_replace('#http(s)?://#', '', HTTP_PWD), '/'); 
-			$uri = mb_strcut($uri, mb_strlen($directoryToRemove));
-
-			//On retire les paramètres et on explose la chaine
-			$uri = strstr($uri, '?', true);
-			$uri = explode('/', $uri);
-
-			//On garde seulement les repertoires non vides
-			foreach($uri as $key => $val)
+			foreach ($routes as $key => $value)
 			{
-				if(empty($val) && $val !== 0 && $val !== '0')
+				$newLabel = $label ? $label . '::' . $key : $key;
+
+				if (is_array($value))
 				{
-					unset($uri[$key]);
+					generateRoutes($urls, $value, $newLabel);
+					continue;
 				}
+
+				$urls[$newLabel] = $value;
+			}
+		}
+
+
+		/**
+		 * Trouve le label de la méthode correspondant à une URL
+		 * @param array $generatedRoutes : Le tableau des routes exploitable tel que retourné par generateRoutes
+		 * @param string $url : L'url à tester
+		 * @return mixed : Le label de la méthode à appeler ou false si il n'y a pas de méthode pour cette URL
+		 */
+		function getMethodToCallLabelForUrl($generatedRoutes, $url)
+		{
+			foreach ($generatedRoutes as $methodToCallLabel => $generatedRoute)
+			{
+				//On transforme la route en expression régulière et on la compare avec l'url
+				$routePattern = preg_replace('#\\\{(.+)\\\}#iU', '([^/]+)', preg_quote($generatedRoute, '#'));
+				$routePattern = preg_replace('#/$#', '/?', $routePattern);
+
+				//Si l'url match pas, on passe à la suivante
+				if (!preg_match('#' . $routePattern . '$#U', $url))
+				{
+					continue;
+				}
+
+				return $methodToCallLabel;
 			}
 
-			//On retourne le tableau en le ré-indexant à 0
-			return array_values($uri);
+			return false;
 		}
 
 		/**
-		 * Retrouve le controlleur dans un URI
-		 * @param string $uri : l'uri à analyser
-		 * @return string : Le nom du controleur avec son namespace adapté
+		 * Extrait d'une URL les valeurs des paramètres à transmettre à une méthode pour une route donnée
+		 * @param string $url : L'URL dont on veux extraire les données
+		 * @param array $generatedRoutes : Le tableau des routes exploitable tel que retourné par generateRoutes
+		 * @param string $methodToCallLabel : La méthode à appeler sous la forme retournée par getMethodToCallLabelForUrl
+		 * @return mixed : False en cas d'erreur, sinon un tableau des valeurs au format ["label" => "valeur"]
 		 */
-		public function parseController($uri)
+		function getParamsForMethodToCallLabel ($url, $generatedRoutes, $methodToCallLabel)
 		{
-			//On va analyser parser l'uri
-			$uri = $this->parseUri($uri);
-
-			//Si pas de controlleur, on prend celui par défaut
-			if (empty($uri[0]))
+			if (!isset($generatedRoutes[$methodToCallLabel]))
 			{
-				return '\controllers\publics\\' . DEFAULT_CONTROLLER;
+				return false;
 			}
 
-			//Si le controlleur n'existe pas, on retourne une 404
-			if (!file_exists(PWD_CONTROLLER . '/publics/' . $uri[0] . '.php'))
-			{
-				return $this->return404();
-			}
+			$route = $generatedRoutes[$methodToCallLabel];
 
-			//On retourne le controlleur
-			return '\controllers\publics\\' . $uri[0];
+			//On récupère les flags de la route
+			$flags = [];
+			preg_match_all('#\\\{(.+)\\\}#iU', preg_quote($route, '#'), $flags);
+			$flags = $flags[1];
+
+			//On transforme la route en expression régulière utilisable pour récupérer les valeurs
+			$routePattern = preg_replace('#\\\{(.+)\\\}#iU', '([^/]+)', preg_quote($route, '#'));
+			$routePattern = preg_replace('#/$#', '/?', $routePattern);
+
+			//On récupère les valeurs des flags
+			$values = [];
+			if (!preg_match('#' . $routePattern . '$#U', $url, $values))
+			{
+				return false;
+			}
+			unset($values[0]);
+
+			//On retourne les valeurs associées aux flags
+			return array_combine($flags, $values);
 		}
 
 		/**
-		 * Retrouve la méthode dans un URI
-		 * @param string $uri : l'uri à analyser
-		 * @return string : Le nom de la methode
+		 * Cette fonction retourne la méthode à appeler depuis sa forme texte
+		 * @param string $methodToCallLabel : Le label de la méthode à appeler
+		 * @return $mixed : False si le label est invalide. Sinon, la méthode à appeler sous la forme d'un tableau ['controller' => 'controllerName', 'method' => 'methodName']
 		 */
-		public function parseMethod($uri)
+		function getMethodeToCallFormMethodeToCallLabel ($methodToCallLabel)
 		{
-			//On instancie le controlleur
-			$controllerName = $this->parseController($uri);
+			$methodToCallLabel = explode('::', $methodToCallLabel);
+
+			if (!isset($methodToCallLabel[0], $methodToCallLabel[1]))
+			{
+				return false;
+			}	
+
+			$controllerName = '\controllers\publics\\' . $methodToCallLabel[0];
 			$controller = new $controllerName();
 
-			//On parse l'uri et on récupère les paramères dans l'URI pour plus tardrecupère les paramètres dans l'url pour les utiliser un peu plus tard
-			$uri = $this->parseUri($uri);
-			$params = $this->parseParams($uri);
+			$methodName = $methodToCallLabel[1];
 
-			//On détermine quelle uri appeler (si non définie, celle par défaut)
-			$method = empty($uri[1]) ? DEFAULT_METHOD : $uri[1];
-
-			//Si le controlleur est un controlleur API, on ajoute le préfixe adapté à la methode à appeler
 			if ($controller instanceof ApiController)
 			{
 				//On va choisir le type à employer
@@ -169,65 +191,98 @@
 					default :
 						$prefixMethod = 'get';
 				}
-				$method = $prefixMethod . mb_convert_case($method, MB_CASE_TITLE);
+				$methodName = $prefixMethod . mb_convert_case($method, MB_CASE_TITLE);	
+			}
+
+			return array(
+				'controller' => $controllerName,
+				'method' => $methodName,
+			);	
+		}
+
+		/**
+		 * Vérifie si une méthode est bien appelable, spécialement depuis le web
+		 * @param array $methodToCall : La méthode à appelée, tel que retournée par getMethodeToCallFormMethodeToCallLabel
+		 * @return boolean : true si appelable, false sinon
+		 */
+		public function checkIsCallableFromWeb($methodToCall)
+		{
+			//Si on ne peux pas créer le controller
+			if (!$controller = new $methodToCall['controller']())
+			{
+				return false;
 			}
 
 			//Si la méthode à appeler n'existe pas, ou commence par '_' (privée), on retourne une 404
 			if (!is_callable([$controller, $method]) || mb_substr($method, 0, 1) == '_')
 			{
-				return $this->return404();
+				return false;
 			}
 
-			//On instancie la classe reflection de PHP sur la méthode que l'on veux analyser pour l'objet controller
-			$methodAnalyser = new ReflectionMethod($controller, $method);
-
-			//Si la méthode à appeler demande plus de paramètres que fournis on retourne une 404
-			if ($methodAnalyser->getNumberOfRequiredParameters() > count($params))
-			{
-				return $this->return404();
-			}
-	
-			return $method;
+			return true;
 		}
 
 		/**
-		 * Retrouve les paramètres dans un URL
-		 * @param string $uri : l'uri à analyser
-		 * @return array : La liste des paramètres au format $clef => $valeur
+		 * Vérifie si une méthode reçois bien tout les paramètres nécessaires
+		 * @param array $methodToCall : la méthode à appelée, tel que retournée par getMethodeToCallFormMethodeToCallLabel
+		 * @param array $params : Les paramètres à passer à la méthode
+		 * @return mixed : Si tout est bon, un tableau contenant tous les paramètres, dans l'ordre de passage à la fonction. Si il manque un paramètre obligatoire, retourne false
 		 */
-		public function parseParams($uri)
+		function checkParametersValidityForMethodeToCall ($methodToCall, $params)
 		{
-			$uri = $this->parseUri($uri); //On récupère l'uri parsé
-			$params = array();
+			//On construit la liste des arguments de la méthode, dans l'ordre
+			$reflection = new ReflectionMethod($controllerName, $methodName);
+			$methodArguments = [];
 
-			//On transforme les paramètres $_GET passés par l'url au format clef-value. Ex : prenom-pierre-lin = $_GET['prenom'] => 'pierre-lin'
-			if (count($uri) > 2) //Si on a plus de deux paramètres qui ont été passé
+			foreach ($reflection->getParameters() as $parameter)
 			{
-				unset($uri[0], $uri[1]); //On supprime le controlleur, et l'uri, des paramètres, il ne reste que les parametres a passer en GET
-				foreach ($uri as $param)
+				//Si le paramètre n'est pas fourni et n'as pas de valeur par défaut
+				if (!array_key_exists($parameter->getName(), $params) && !$parameter->isDefaultValueAvailable())
 				{
-					$params[] = rawurldecode($param);
+					return false;
 				}
+
+				//Si on a une valeur par défaut dispo, on initialise la variable avec
+				if ($parameter->isDefaultValueAvailable())
+				{
+					$methodArguments[$parameter->getName()] = $parameter->getDefaultValue();
+				}
+
+				//Si la variable n'existe pas, on passe
+				if (!array_key_exists($parameter->getName(), $params))
+				{
+					continue;
+				}
+
+				//On ajoute la variable dans le tableau des arguments de la méthode	
+				$methodArguments[$parameter->getName()] = $params[$parameter->getName()];
 			}
-			return $params;
+
+			return $methodArguments;
 		}
 
 		/**
-		 * Cette fonction permet de vérifier si le cache est activé pour une uri, et si oui quel fichier utiliser
-		 * @param string $uri : Uri à analyser
-		 * @return mixed : Si pas de cache, faux. Sinon un tableau avec deux clefs, "state" => statut du nom de fichier retourné (true, le fichier doit être utilisé, false, le fichier doit être créé), "file" => Le nom du fcihier de cache
+		 * Cette fonction permet de vérifier si le cache est activé pour une methode, et si oui quel fichier utiliser
+		 * @param array $methodToCall : Le controller et la méthode à appelée, tel que retourné par getMethodeToCallFormMethodeToCallLabel
+		 * @param array $params : Les paramètres à passer à la méthode, tel que retourné par getParamsForMethodToCallLabel
+		 * @return mixed : Si pas de cache, faux. Sinon un tableau avec deux clefs, "state" => statut du nom de fichier retourné (true, le fichier doit être utilisé, false, le fichier doit être créé), "file" => Le chemin du fcihier de cache
 		 */
-		public function verifyCache($uri)
+		public function checkForCache($methodToCall, $params)
 		{
-			//On récupère le nom du controller et de la méthode
-			$controllerName = $this->parseController($uri);
-			$methodName = $this->parseMethod($uri);
-			$params = $this->parseParams($uri);
+			//Si on ne doit pas activer le cache
+			if (!ACTIVATING_CACHE)
+			{
+				return false;
+			}
+
+			$controllerName = $methodToCall['controller'];
+			$methodName = $methodToCall['method'];
+			$titledMethodName = mb_convert_case($methodName, MB_CASE_TITLE);
 
 			$controller = new $controllerName();
 
-			//Si on ne doit pas activer le cache ou si on na pas de cache pour ce fichier
-			if (!ACTIVATING_CACHE || !property_exists($controller, 'cache_' . $methodName))
+			//Si on na pas de cache pour ce fichier
+			if (!property_exists($controller, 'cache' . $titledMethodName))
 			{
 				return false;
 			}
@@ -240,33 +295,33 @@
 			$hashDatas = md5(json_encode($_GET) . json_encode($_POST) . json_encode($params));
 
 			//On va gérer le cas d'un cache custom
-			if (method_exists($controller, '_cache_custom_' . $methodName))
+			if (method_exists($controller, '_cacheCustom' . $titledMethodName))
 			{
-				$cacheCustomName = '_cache_custom_' . $methodName;
+				$cacheCustomName = '_cacheCustom' . $titledMethodName;
 				$hashDatas = md5($controller->$cacheCustomName());
 			}
 
 			//On va gérer des headers custom sur le fichier de cache en appelant si elle existe la fonction des headers
-			if (method_exists($controller, '_cache_custom_headers_' . $methodName))
+			if (method_exists($controller, '_cacheHeader' . $titledMethodName))
 			{
-				$cacheHeadersCustomName = '_cache_custom_headers_' . $methodName;
+				$cacheHeadersCustomName = '_cacheHeader' . $titledMethodName;
 				$controller->$cacheHeadersCustomName();
 			}
 
-			$fileName = $hashName . $hashDatas;
+			$filePath = PWD_CACHE . '/' . $hashName . $hashDatas;
 
 			//Si il n'existe pas de fichier de cache pour ce fichier
-			if (!file_exists(PWD_CACHE . $fileName))
+			if (!file_exists($filePath))
 			{
-				return array('state' => false, 'file' => $fileName);
+				return array('state' => false, 'file' => $filePath);
 			}
 
 			//Sinon, si le fichier de cache existe
-			$fileLastChange = filemtime(PWD_CACHE . $fileName);
+			$fileLastChange = filemtime($filePath);
 
 			//On calcul la date de mise à jour valide la plus ancienne possible
 			$now = new DateTime();
-			$propertyName = 'cache_' . $methodName;
+			$propertyName = 'cache' . $titledMethodName;
 			$propertyValue = $controller->$propertyName;
 			$now->sub(new DateInterval('PT' . $propertyValue . 'M'));
 			$maxDate = $now->format('U');
@@ -274,52 +329,72 @@
 			//Si le fichier de cache est trop vieux
 			if ($fileLastChange < $maxDate)
 			{
-				return array('state' => false, 'file' => $fileName);
+				return array('state' => false, 'file' => $filePath);
 			}
 
 			//Sinon, on retourne le fichier de cache en disant de l'utiliser
-			return array('state' => true, 'file' => $fileName);
+			return array('state' => true, 'file' => $filePath);
 		}
 
 		/**
-		 * Cette fonction permet de charger la page adaptée a partir d'une url
-		 * Elle gère également le cache
-		 * @param string $uri : Uri à analyser pour charger une page
-		 * @return void
+		 * Appel le routeur et la méthode correspondant à une URL
+		 * @param string $url : L'url à analyser
+		 * @param string $routes : Les routes du site
 		 */
-		public function loadUri($uri)
+		function callRouterForUrl ($url, $routes)
 		{
-			$params = $this->parseParams($uri); //On récupère les paramètres à passer à la fonction
-			$controllerName = $this->parseController($uri); //On récupère le nom du controleur à appeler
-			$controller = new $controllerName(); //On créer le controleur
+			$generatedRoutes = [];
+			generateRoutes($generatedRoutes, $routes);
 
-			if (method_exists($controller, '_before')) //Si une fonction before existe pour ce controller, on l'appel
+			if (!$methodToCallLabel = getMethodToCallLabelForUrl($generatedRoutes, $url))
 			{
-				$controller->_before(); //On appel la fonction before
+				return $this->return404();
 			}
 
-			$methodName = $this->parseMethod($uri); //On récupère le nom de la méthode
-			$verifyCache = $this->verifyCache($uri); //Au passage en plus de vérifier le cache, on joue les headers utiles
+			if (!$methodToCall = getMethodeToCallFormMethodeToCallLabel($methodToCallLabel))
+			{
+				return $this->return404();
+			}
+
+			if (!checkIsCallableFromWeb($methodToCall))
+			{
+				return $this->return404();
+			}
+
+			$params = getParamsForMethodToCallLabel($url, $generatedRoutes, $methodToCallLabel);
+			if ($params === false)
+			{
+				return $this->return404();
+			}
+
+			$params = checkParametersValidityForMethodeToCall($methodToCall, $params)
+			if ($params === false)
+			{
+				return $this->return404();
+			}
+
+			$checkForCache = $this->checkForCache($methodToCall, $params);
 
 			//Si on ne doit pas utiliser de cache
-			if ($verifyCache === false)
-			{
-				call_user_func_array(array($controller, $methodName), $params); //On appel la methode, en lui passant les arguments necessaires
-				return null;
-			}
+                        if ($checkForCache === false)
+                        {
+				call_user_func_array([$controller, $method], $params);
+                                return null;
+                        }
 
-			//Si on doit utiliser un cache avec un nouveau fichier
-			if ($verifyCache['state'] == false)
-			{
-				//On créer le fichier avec le contenu adapté
-				ob_start();
-				call_user_func_array(array($controller, $methodName), $params); //On appel la methode, en lui passant les arguments necessaires
-				$content = ob_get_contents();
-				file_put_contents(PWD_CACHE . $verifyCache['file'], $content);
-				ob_end_clean();
-			}
+                        //Si on doit utiliser un cache avec un nouveau fichier
+                        if ($checkForCache['state'] == false)
+                        {
+                                //On créer le fichier avec le contenu adapté
+                                ob_start();
+				call_user_func_array([$controller, $method], $params);
+                                $content = ob_get_contents();
+                                file_put_contents($checkForCache['file'], $content);
+                                ob_end_clean();
+                        }
 
-			//On utilise le fichier de cache
-			readfile(PWD_CACHE . $verifyCache['file']);
+                        //On utilise le fichier de cache
+                        readfile($checkForCache['file']);
+			return null;
 		}
 	} 
