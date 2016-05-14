@@ -27,6 +27,6 @@
 	# ROUTAGE #
 	###########
 	//Partie gérant l'appel des controlleurs
-	$router = new Router($_SERVER['REQUEST_URI'], $routes);
+	$router = new Router($_SERVER['REQUEST_URI'], $descartesRoutes);
 	$router->callRouterForUrl($router->getCallUrl(), $router->getRoutes());
 

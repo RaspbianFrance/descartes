@@ -17,5 +17,7 @@
 			<li>Seconde valeur : <?php $this->s($secondValue); ?></li>
 		</ul>
 	<?php } ?>
+
+
 </body>
 </html>

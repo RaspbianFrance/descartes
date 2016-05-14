@@ -1,5 +1,5 @@
 <?php
-	$routes = array(
+	$descartesRoutes = array(
 		'Index' => [
 			'home' => '/',
 			'showValue' => [

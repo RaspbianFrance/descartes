@@ -51,36 +51,63 @@
 		 * @param string $getParams : Tableau des paramètres $_GET à employer au format 'nom' => valeur (par défaut array())
 		 * @return string, Url générée
 		 */ 
-		protected function generateUrl($controller = '', $method = '', $params = array(), $getParams = array())
+		protected function generateUrl($controller, $method, $params = array(), $getParams = array())
 		{
+			global $descartesRoutes;
+
+			if ($controller instanceof Controller)
+			{
+				$controller = get_class($controller);
+			}
+
 			$url = HTTP_PWD;
 
-			$controllerName = $controller;
-
-			if (is_a($controller, 'Controller'))
+			if (!array_key_exists($controller, $descartesRoutes) || !array_key_exists($method, $descartesRoutes[$controller]))
 			{
-				$controllerName = get_class($controller);
+				return false;
 			}
 
-			$url .= '/' . $controller;
-			$url .= $method ? '/' . $method : '';
-
-			//On ajoute les paramètres framework	
-			foreach ($params as $valeur)
-			{
-				$url .= '/' . rawurlencode($valeur);	
-			}
-
-			//On calcul puis ajoute les paramètres get
+			//On calcul les paramètres get
 			$paramsToJoins = array();
 			foreach ($getParams as $clef => $valeur)
 			{
 				$paramsToJoins[] = $clef . '=' . rawurlencode($valeur);
 			}
+			$getParamsString = count($getParams) ? '?' . implode('&', $paramsToJoins) : '';
 
-			$url .= count($getParams) ? '?' . implode('&', $paramsToJoins) : '';
+			if (!is_array($descartesRoutes[$controller][$method]))
+			{
+				return $url . $descartesRoutes[$controller][$method] . $getParamsString;
+			}
 
-			return $url;
+			foreach ($descartesRoutes[$controller][$method] as $route)
+			{
+				$flags = [];
+				preg_match_all('#\\\{(.+)\\\}#iU', preg_quote($route, '#'), $flags);
+				$flags = $flags[1];
+
+				//Si pas le meme nombre d'arguments
+				if (count($flags) != count($params))
+				{
+					continue;
+				}
+
+				//Si un argument n'est pas dispo
+				foreach ($flags as $flag)
+				{
+					if (!array_key_exists($flag, $params))
+					{
+						continue 2;
+					}
+
+					//Si l'argument est dispo, on le remplace dans la route
+					$route = str_replace('{' . $flag . '}', rawurlencode($params[$flag]), $route);
+				}
+
+				return $url . $route . $getParamsString;
+			}
+
+			return false;
 		}
 
 		/**
