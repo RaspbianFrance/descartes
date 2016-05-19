@@ -9,7 +9,8 @@
 				<div class="col-lg-12">
 					<h2 class="section-title">Contenu table <?php $this->s($table); ?><a class="add-line-admin fa fa-plus" href="<?php echo $this->generateUrl($this, 'add', ['table' => $table]); ?>"></a></h2>
 				</div>
-				<div class="col-lg-12">
+				<?php if ($lignes) { ?>
+					<div class="col-lg-12">
 						<table class="table table-striped show-table-table">
 							<thead>
 								<tr>
@@ -49,7 +50,7 @@
 													<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">Action pour la sélection <span class="caret"></span></button>
 													<ul class="dropdown-menu pull-right" role="menu">
 														<li><a href="<?php echo $this->generateUrl($this, 'edit', ['table' => $table, 'primary' => $ligne[$primary]]); ?>"><span class="fa fa-edit"></span> Modifier</a></li>
-														<li><a href="<?php echo $this->generateUrl($this, 'delete', ['table' => $table, 'primary' => $ligne[$primary]]); ?>"><span class="fa fa-trash-o"></span> Supprimer</a></li>
+														<li><a href="<?php echo $this->generateUrl($this, 'deleteLine', ['table' => $table, 'primary' => $ligne[$primary]]); ?>"><span class="fa fa-trash-o"></span> Supprimer</a></li>
 													</ul>
 												</div>
 											</td>
@@ -59,10 +60,15 @@
 								?>
 							</tbody>
 						</table>
-				</div>
+					</div>
 				<div class="text-center">
 					<?php $incs->htmlPaginate($pagination); ?>
 				</div>
+				<?php } else { ?>
+					<div class="col-xs-12">
+						La table est vide
+					</div>	
+				<?php } ?>
 			</div> <!-- /.row -->
 		</div> <!-- /.container -->
 	</div> <!-- /.section -->

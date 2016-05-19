@@ -26,7 +26,7 @@
 								<?php if ($fieldToShow['foreign']) { ?>
 									<select name="<?php $this->s($fieldToShow['name']); ?>" class="form-control" id="<?php $this->s($fieldToShow['name']); ?>" <?php echo ($fieldToShow['required'] ? 'required' : ''); ?>>
 										<?php foreach ($fieldToShow['possibleValues'] as $possibleValue) { ?>
-											<option value="<?php $this->s($possibleValue); ?>" <?php echo $ligne[$fieldToShow['name']] == $possibleValue ? 'selected' : ''; ?>?>><?php $this->s($possibleValue); ?></option>
+											<option value="<?php $this->s($possibleValue); ?>" <?php echo $ligne[$fieldToShow['name']] == $possibleValue ? 'selected' : ''; ?>?><?php $this->s($possibleValue); ?></option>
 										<?php } ?>
 									</select>
 								<?php } elseif ($fieldToShow['textarea']) { ?>

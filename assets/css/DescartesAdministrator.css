@@ -51,3 +51,15 @@
 {
 	text-align: right;
 }
+
+.section-title
+{
+	margin: 20px 0 40px 0;
+}
+
+.confirm-delete-text
+{
+	font-size: 22px;
+	margin: 0px 0 50px 0;
+	text-align: center;
+}

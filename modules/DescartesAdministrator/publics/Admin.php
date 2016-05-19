@@ -275,7 +275,8 @@
 			$page = $page < 1 ? 1 : (int)$page;
 
 			//On gère l'initialisation via la session
-			$_SESSION['admin-liste-' . $table] = array(
+			$_SESSION['admin-show-table'] = array(
+				'table' => $table,
 				'orderByField' => $orderByField,
 				'orderDesc' => $orderDesc,
 				'page' => $page,
@@ -291,12 +292,6 @@
 
 
 			$lignes = $model->getFromTableWhere($table, null, $orderByField, $orderDesc, 25, 25 * ($page - 1)); #On get sans conditions en paginant
-
-			//On renvoie sur l'accueil si ya pas de ligne (ca se presente par exemple sur des tables qui n'existes pas
-			if (!$lignes)
-			{
-				return header('Location: ' . $this->generateUrl('DescartesAdministratorAdmin', 'index'));
-			}
 
 			//On prépare les données de la pagination
 			$totalLignes = $model->countTable($table);
@@ -324,59 +319,44 @@
 		/**
 		 * Cette page retourne la page de confirmation des suppression
 		 * @param string $table : Le nom de la table a modifier
-		 * @param string $id : L'id de la ligne a supprimer
+		 * @param string $primary : La valeure du champs primaire de la table
 		 */
-		public function deleteLigne($table = '', $id = '')
+		public function deleteLine($table, $primary)
 		{
-			return $this->render('DescartesAdministrator/admin/delete', array(
+			global $bdd;
+			$model = new \Model($bdd);
+
+			return $this->render('DescartesAdministrator/Admin/deleteLine', array(
 				'table' => $table,
-				'id' => $id
+				'primary' => $primary
 			));
 		}
 
 		/**
 		 * Cette page supprime la ligne de la base
 		 * @param string $table : Le nom de la table a modifier
-		 * @param string $id : L'id de la ligne à supprimer
+		 * @param string $primary : La valeure du champs primaire de la ligne
 		 * @param string $csrf : Le csrf, necessaire pour assurer la suppression
 		 */
-		public function confirmDelete($table, $id, $csrf)
+		public function destroyLine($table, $primary, $csrf)
 		{
 			//On verifie que le CSRF est ok	
-			if (!\internalTools::verifyCSRF($csrf))
+			if (!$this->verifyCSRF($csrf))
 			{
-				return header('Location: ' . $this->generateUrl('admin'));
+				return header('Location: ' . $this->generateUrl('DescartesAdministratorAdmin', 'index'));
 			}
 			
-			global $db;
-			$nbDelete = $db->deleteFromTableWhere($table, ['id' => $id]);
+			global $bdd;
+			$model = new \Model($bdd);
 
-			if (!$nbDelete)
+			//On renvoie sur l'accueil si ya pas de clef primaire
+			if (!$primaryField = $model->getPrimaryField($table))
 			{
-				$_SESSION['alert'] = ['type' => 'danger', 'text' => 'Impossible de supprimer la ligne'];
-			}
-			else
-			{
-				$_SESSION['alert'] = ['type' => 'success', 'text' => 'La ligne a bien été supprimée'];
+				return header('Location: ' . $this->generateUrl('DescartesAdministratorAdmin', 'index'));
 			}
 
-			$arguments = ['table' => $table];
+			$nbDelete = $model->deleteFromTableWhere($table, [$primaryField => $primary]);
 
-			if(isset($_SESSION['admin-liste-' . $table]['orderBy']))
-			{
-				$arguments['orderBy'] = $_SESSION['admin-liste-' . $table]['orderBy'];
-			}	
-
-			if(isset($_SESSION['admin-liste-' . $table]['orderDesc']))
-			{
-				$arguments['orderDesc'] = $_SESSION['admin-liste-' . $table]['orderDesc'];
-			}	
-			
-			if(isset($_SESSION['admin-liste-' . $table]['page']))
-			{
-				$arguments['page'] = $_SESSION['admin-liste-' . $table]['page'];
-			}	
-
-			return header('Location: ' . $this->generateUrl('admin', 'liste', $arguments));
+			return header('Location: ' . $this->generateUrl($this, 'showTable', isset($_SESSION['admin-show-table']) ? $_SESSION['admin-show-table'] : ['table' => $table]));
 		}
 	}

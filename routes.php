@@ -31,5 +31,12 @@
 				'/admin/show-table/{table}/',
 				'/admin/show-table/{table}/order-by-field/{orderByField}/{orderDesc}/page/{page}/',
 			],
+			'deleteLine' => [
+				'/admin/delete/{table}/line/{primary}/',
+			],
+			'destroyLine' => [
+				'/admin/destroy/{table}/line/{primary}/{csrf}/',
+			],
+
 		],
 	);
