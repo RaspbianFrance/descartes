@@ -13,10 +13,10 @@
 			continue;
 		}
 		
-		if (!file_exists(PWD_MODULES . $filename . '/constants.php'))
+		if (!file_exists(PWD_MODULES . '/' . $filename . '/constants.php'))
 		{
 			continue;
 		}
 
-		require_once(PWD_MODULES . $filename . '/constants.php');
+		require_once(PWD_MODULES . '/' . $filename . '/constants.php');
 	}

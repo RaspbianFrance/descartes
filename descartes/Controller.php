@@ -51,13 +51,14 @@
 		 * @param string $getParams : Tableau des paramètres $_GET à employer au format 'nom' => valeur (par défaut array())
 		 * @return string, Url générée
 		 */ 
-		protected function generateUrl($controller, $method, $params = array(), $getParams = array())
+		public static function generateUrl($controller, $method, $params = array(), $getParams = array())
 		{
 			global $descartesRoutes;
 
 			if ($controller instanceof Controller)
 			{
-				$controller = get_class($controller);
+				$controller = explode('\\', get_class($controller));
+				$controller = end($controller);
 			}
 
 			$url = HTTP_PWD;
@@ -120,7 +121,7 @@
 		 *
 		 * @return mixed : Si $echo est vrai, void. Sinon, la chaine modifiée
 		 */
-		function s($text, $nl2br = false, $escapeQuotes = true, $echo = true)
+		public static function s($text, $nl2br = false, $escapeQuotes = true, $echo = true)
 		{
 			$text = $escapeQuotes ? htmlspecialchars($text, ENT_QUOTES) : htmlspecialchars($text, ENT_NOQUOTES);
 			$text = $nl2br ? nl2br($text) : $text;

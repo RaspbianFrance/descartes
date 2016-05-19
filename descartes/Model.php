@@ -178,6 +178,24 @@
 		}
 
 		/**
+		 * Retourne le nom du champs PRIMARY d'une table
+		 * @param string $table : Le nom de la table à vérifier
+		 * @return string : Le nom du champ PRIMARY
+		 */
+		public function getPrimaryField($table)
+		{
+			$fields = $this->describeTable($table);
+
+			foreach ($fields as $field)
+			{
+				if ($field['PRIMARY'])
+				{
+					return $field['NAME'];
+				}
+			}
+		}
+
+		/**
 		 * Cette finction retourne la table et le champs référent pour un champ avec une foreign key
 		 * @param string $table : Le nom de la table qui contient le champ
 		 * @param string $field : Le nom du champ
@@ -447,9 +465,8 @@
 		}
 
 		/**
-		 * Cette fonction permet de modifier les données d'une table pour un la clef primaire
+		 * Cette fonction permet de modifier les données d'une table
 		 * @param string $table : Le nom de la table dans laquelle on veux insérer des données
-		 * @param string $primary : La clef primaire qui sert à identifier la ligne a modifier
 		 * @param array $datas : Les données à insérer au format "champ" => "valeur"
 		 * @param array $restrictions : Les restrictions pour la mise à jour sous la forme "label" => "valeur". Un operateur '<, >, <=, >=, !' peux précder le label pour modifier l'opérateur par défaut (=)
 		 * @return mixed : False en cas d'erreur, sinon le nombre de lignes modifiées

@@ -263,6 +263,28 @@
 		}
 
 		/**
+		 * Cette fonction vérifie si une méthode before est disponible pour un controller
+		 * @param array $controller : Le controller tel que retourné par getMethodeToCallFormMethodeToCallLabel
+		 * @return boolean : True si un _before existe, faux sinon
+		 */
+		public function checkForBefore ($controller)
+		{
+			//Si on ne peux pas créer le controller
+			if (!$controller = new $controller())
+			{
+				return false;
+			}
+
+			//Si la fonction _before n'est pas dispoSi la méthode à appeler n'existe pas, ou commence par '_' (privée), on retourne une 404
+			if (!is_callable([$controller, '_before']))
+			{
+				return false;
+			}
+
+			return true;
+		}
+
+		/**
 		 * Cette fonction permet de vérifier si le cache est activé pour une methode, et si oui quel fichier utiliser
 		 * @param array $methodToCall : Le controller et la méthode à appelée, tel que retourné par getMethodeToCallFormMethodeToCallLabel
 		 * @param array $params : Les paramètres à passer à la méthode, tel que retourné par getParamsForMethodToCallLabel
@@ -379,6 +401,12 @@
 			//On instancie le controller
 			$controller = new $methodToCall['controller']();
 
+			if ($this->checkForBefore($controller))
+			{
+				$before = '_before';
+				$controller->$before();
+			}
+
 			//Si on ne doit pas utiliser de cache
                         if ($checkForCache === false)
 			{
@@ -390,11 +418,14 @@
                         if ($checkForCache['state'] == false)
                         {
                                 //On créer le fichier avec le contenu adapté
-                                ob_start();
+				ob_start();
+
 				call_user_func_array([$controller, $methodToCall['method']], $params);
-                                $content = ob_get_contents();
+
+				$content = ob_get_contents();
                                 file_put_contents($checkForCache['file'], $content);
-                                ob_end_clean();
+
+				ob_end_clean();
                         }
 
                         //On utilise le fichier de cache
