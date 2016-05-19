@@ -1,10 +1,7 @@
 <?php
-	
-	$incs = new internalIncs();
-	$incs->head('Accueil');
-?>
-<?php 
-	$this->headerAdmin();
+	$incs = new \modules\DescartesAdministrator\internals\Incs();
+	$incs->htmlHead();
+	$incs->htmlNav();
 ?>
 	<div class="section admin-section">
 		<div class="container">
@@ -20,4 +17,4 @@
 	</div> <!-- /.container -->
 </div> <!-- /.section -->
 <?php
-	$incs->footer();
+	$incs->htmlFooter();

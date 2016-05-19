@@ -1,21 +1,16 @@
 <?php
-	
-	$incs = new internalIncs();
-	$incs->head('Accueil');
-?>
-<?php 
-	$this->headerAdmin($table);
+	$incs = new \modules\DescartesAdministrator\internals\Incs();
+	$incs->htmlHead();
+	$incs->htmlNav($table);
 ?>
 	<div class="section admin-section">
 		<div class="container">
 			<div class="row">
-				<?php $incs->alert(); ?>
 				<div class="col-lg-12">
-					<h2 class="section-title">Contenu table <?php secho($table); ?><a class="add-line-admin fa fa-plus" href="<?php echo $this->generateUrl('admin', 'add', [$table]); ?>"></a></h2>
+					<h2 class="section-title">Contenu table <?php $this->s($table); ?><a class="add-line-admin fa fa-plus" href="<?php echo $this->generateUrl($this, 'add', ['table' => $table]); ?>"></a></h2>
 				</div>
 				<div class="col-lg-12">
-					<div class="table-responsive">
-						<table class="table table-striped">
+						<table class="table table-striped show-table-table">
 							<thead>
 								<tr>
 									<?php
@@ -23,11 +18,11 @@
 										{
 										?>
 											<th>
+												<?php $this->s($nom); ?>
 												<span class="admin-liste-order">
-													<a class="fa fa-sort-alpha-asc" href="<?php echo $this->generateUrl('admin', 'liste', [$table, $nom, 0]); ?>"></a>
-													<a class="fa fa-sort-alpha-desc" href="<?php echo $this->generateUrl('admin', 'liste', [$table, $nom, 1]); ?>"></a>
+													<a class="fa fa-sort-alpha-asc" href="<?php echo $this->generateUrl($this, 'showTable', ['table' => $table, 'orderByField' => $nom, 'orderDesc' => 0, 'page' => $page]); ?>"></a>
+													<a class="fa fa-sort-alpha-desc" href="<?php echo $this->generateUrl($this, 'showTable', ['table' => $table, 'orderByField' => $nom, 'orderDesc' => 1, 'page' => $page]); ?>"></a>
 												</span>
-												<?php secho($nom); ?>
 											</th>
 										<?php
 										}
@@ -45,7 +40,7 @@
 												foreach ($ligne as $nom => $value)
 												{
 												?>
-													<td><?php secho($value); ?></td>
+													<td><?php $this->s($value); ?></td>
 												<?php
 												}
 											?>
@@ -53,8 +48,8 @@
 												<div class="btn-group action-dropdown" target="#table-commands">
 													<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">Action pour la sélection <span class="caret"></span></button>
 													<ul class="dropdown-menu pull-right" role="menu">
-														<li><a href="<?php echo $this->generateUrl('admin', 'edit', array($table, $ligne['id'])); ?>"><span class="fa fa-edit"></span> Modifier</a></li>
-														<li><a href="<?php echo $this->generateUrl('admin', 'deleteLigne', array($table, $ligne['id'])); ?>"><span class="fa fa-trash-o"></span> Supprimer</a></li>
+														<li><a href="<?php echo $this->generateUrl($this, 'edit', ['table' => $table, 'primary' => $ligne[$primary]]); ?>"><span class="fa fa-edit"></span> Modifier</a></li>
+														<li><a href="<?php echo $this->generateUrl($this, 'delete', ['table' => $table, 'primary' => $ligne[$primary]]); ?>"><span class="fa fa-trash-o"></span> Supprimer</a></li>
 													</ul>
 												</div>
 											</td>
@@ -64,13 +59,11 @@
 								?>
 							</tbody>
 						</table>
-					</div>
 				</div>
 				<div class="text-center">
-					<?php $incs->paginate($pagination); ?>
+					<?php $incs->htmlPaginate($pagination); ?>
 				</div>
 			</div> <!-- /.row -->
 		</div> <!-- /.container -->
 	</div> <!-- /.section -->
-<?php
-	$incs->footer();
+<?php $incs->htmlFooter(); ?>
