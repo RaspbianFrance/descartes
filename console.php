@@ -4,31 +4,27 @@
 	 *	Cette page gère les scripts appelés en ligne de commande
 	 */
 
+	require_once(__DIR__ . '/descartes/load-constants.php');
 	define('FROM_WEB', false);
 
 	##############
 	# INCLUSIONS #
 	##############
-	require_once(__DIR__ . '/app/load-constants.php');
-	require_once(PWD . 'app/autoload.php');
-	require_once(PWD . 'vendor/autoload.php');
-	require_once(PWD . 'app/conn_bdd.php');
-	require_once(PWD . 'app/secho.php');
-	require_once(PWD . 'app/Controller.php');
-	require_once(PWD . 'app/ApiController.php');
-	require_once(PWD . 'app/Router.php');
-	require_once(PWD . 'app/Model.php');
-	require_once(PWD . 'app/Console.php');
+	//On va inclure l'ensemble des fichiers necessaires
+	require_once(PWD . '/descartes/autoload.php');
+	require_once(PWD . '/vendor/autoload.php');
+	require_once(PWD . '/descartes/Console.php');
+	require_once(PWD . '/routes.php');
 
 	#########
 	# MODEL #
 	#########
 	//On va appeler un modèle, est l'initialiser
-	$db = new Model($bdd);
-	
+	$bdd = Model::connect(DATABASE_HOST, DATABASE_NAME, DATABASE_USER, DATABASE_PASSWORD);
+
 	###########
 	# ROUTAGE #
 	###########
 	//Partie gérant l'appel des controlleurs
-	$console = new Console($argv);
+	$console = new \Console($argv);
 	$console->executeCommand($console->getCommand());

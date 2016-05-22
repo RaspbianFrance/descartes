@@ -65,7 +65,7 @@
 
 			$controllerName = $command[1];
 
-			if (!file_exists(PWD . str_replace('\\', '/', $controllerName) . '.php'))
+			if (!class_exists($controllerName))
 			{
 				return false;
 			}
@@ -299,6 +299,8 @@
 				echo $this->getHelp($command, $controller, $method);
 				return false;
 			}
+
+			$controller = new $controller();
 
 			//Si tout est bien ok, on appel la méthode
 			return call_user_func_array([$controller, $method], $params);
