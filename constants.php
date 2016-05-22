@@ -1,14 +1,17 @@
 <?php
 	/*
-		This file define customisable constants and options
+		Ce fichier défini les constantes modifiables et les options
 	*/
 
-	/* Settings definition */
+	/* Défintion des réglages */
 
-	//If true, application is considered as in production
+	//On defini le nom de session
+	define('SESSION_NAME', 'descartes_exemple_website');
+
+	//Si vraie, l'applie est en prod
 	define('ENV_PRODUCTION', true);
 
-	//If true, caching mechanisms are activated
+	//Si vrai, on active les méchanismes de cache
 	define('ACTIVATING_CACHE', true); //On desactive le cache
 
 	//Réglages des identifiants de base de données
@@ -17,7 +20,7 @@
 	define('DATABASE_USER', 'root'); //Utilisateur de la bdd
 	define('DATABASE_PASSWORD', 'root'); //Password de l'utilisateur
 
-	/*******************************/
-	/* PART FOR YOUR OWN CONSTANTS */
-	/*******************************/
+	/**************************************/
+	/* PARTIE POUR VOS PROPRES CONSTANTES */
+	/**************************************/
 

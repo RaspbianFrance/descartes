@@ -1,4 +1,7 @@
 <?php
+	require_once(__DIR__ . '/descartes/load-constants.php');
+
+	session_name(SESSION_NAME);
 	session_start();
 	define('FROM_WEB', true);
 
@@ -12,7 +15,6 @@
 	# INCLUSIONS #
 	##############
 	//On va inclure l'ensemble des fichiers necessaires
-	require_once(__DIR__ . '/descartes/load-constants.php');
 	require_once(PWD . '/descartes/autoload.php');
 	require_once(PWD . '/vendor/autoload.php');
 	require_once(PWD . '/routes.php');
