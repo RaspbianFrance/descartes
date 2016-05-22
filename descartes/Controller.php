@@ -22,7 +22,7 @@
 		 * Cette fonction permet d'afficher un template
 		 * @param string $template : Nom du template à afficher
 		 * @param array $variables : Tableau des variables à passer au script, au format 'nom' => valeur (par défaut array())
-		 * @return booleen, Vrai si possible, faux sinon
+		 * @return mixed, Faux si le fichier n'existe pas, les variables passées sinon
 		 */
 		protected function render($template, $variables = array())
 		{
@@ -37,7 +37,7 @@
 			{
 				require($templatePath);
 				unset($templatePath);
-				return true;
+				return $variables;
 			}
 
 			return false;

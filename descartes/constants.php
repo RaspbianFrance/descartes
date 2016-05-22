@@ -11,7 +11,7 @@
 	//On calcul les chemins de base du système
 	$protocol = (isset($_SERVER['HTTPS']) ? 'https' : 'http') . '://';
 	$serverName = isset($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : 'localhost';
-	$port = ($_SERVER['SERVER_PORT'] == 80) ? '' : $_SERVER['SERVER_PORT'];
+	$port = isset($_SERVER['SERVER_PORT']) ? ($_SERVER['SERVER_PORT'] == 80) ? '' : $_SERVER['SERVER_PORT'] : '';
 
 	define('PWD', substr(__DIR__, 0, strrpos(__DIR__, '/'))); //On défini le chemin de base du site
 	define('HTTP_PWD', $protocol . $serverName . $port . $urlDirPath); //On défini l'adresse url du site
