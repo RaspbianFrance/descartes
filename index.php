@@ -1,9 +1,16 @@
 <?php
-	require_once(__DIR__ . '/descartes/load-constants.php');
+	###############
+	# ENVIRONMENT #
+	###############
+	define('ENVIRONMENT', 'dev');
+	define('FROM_WEB', true);
+	require_once(__DIR__ . '/descartes/load-environment.php');
 
+	############
+	# SESSIONS #
+	############
 	session_name(SESSION_NAME);
 	session_start();
-	define('FROM_WEB', true);
 
 	//On creé le csrf token si il n'existe pas
 	if (!isset($_SESSION['csrf']))

@@ -1,6 +1,10 @@
 <?php
-	require_once(__DIR__ . '/../descartes/load-constants.php');
+	###############
+	# ENVIRONMENT #
+	###############
+	define('ENVIRONMENT', 'test');
 	define('FROM_WEB', false);
+	require_once(__DIR__ . '/descartes/load-environment.php');
 
 	##############
 	# INCLUSIONS #

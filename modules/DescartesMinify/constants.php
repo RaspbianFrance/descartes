@@ -1,4 +1,0 @@
-<?php
-	//Duré du cache CSS & JS en minutes
-	define('DESCARTESMINIFY_CACHE_CSS_DURATION', 43200);
-	define('DESCARTESMINIFY_CACHE_JS_DURATION', 43200);

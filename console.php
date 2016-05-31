@@ -1,11 +1,11 @@
 #!/usr/bin/php
 <?php
-	/**
-	 *	Cette page gère les scripts appelés en ligne de commande
-	 */
-
-	require_once(__DIR__ . '/descartes/load-constants.php');
+	###############
+	# ENVIRONMENT #
+	###############
+	define('ENVIRONMENT', 'dev');
 	define('FROM_WEB', false);
+	require_once(__DIR__ . '/descartes/load-environment.php');
 
 	##############
 	# INCLUSIONS #

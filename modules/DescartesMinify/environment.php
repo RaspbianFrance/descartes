@@ -1,0 +1,16 @@
+<?php
+	//On défini l'environment
+	$environment = [
+		'prod' => [
+			'DESCARTESMINIFY_CACHE_CSS_DURATION' => 43200,
+			'DESCARTESMINIFY_CACHE_JS_DURATION' => 43200,
+		],
+		'dev' => [
+			'DESCARTESMINIFY_CACHE_CSS_DURATION' => 43200,
+			'DESCARTESMINIFY_CACHE_JS_DURATION' => 43200,
+		],
+		'test' => [
+			'DESCARTESMINIFY_CACHE_CSS_DURATION' => 43200,
+			'DESCARTESMINIFY_CACHE_JS_DURATION' => 43200,
+		]
+	];
