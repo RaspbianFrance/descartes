@@ -19,12 +19,12 @@
 			continue;
 		}
 		
-		if (!file_exists(PWD_MODULES . '/' . $filename . '/constants.php'))
+		if (!file_exists(PWD_MODULES . '/' . $filename . '/environment.php'))
 		{
 			continue;
 		}
 
-		require_once(PWD_MODULES . '/' . $filename . '/constants.php');
+		require_once(PWD_MODULES . '/' . $filename . '/environment.php');
 		foreach ($environment[ENVIRONMENT] as $name => $value)
 		{
 			define(mb_strtoupper($name), $value);
