@@ -39,7 +39,7 @@
 			try
 			{
 				// On se connecte à MySQL
-				$pdo = new PDO('mysql:host=' . $host . ';dbname=' . $dbname, $user, $password, array(PDO::ATTR_PERSISTENT => TRUE));
+				$pdo = new PDO('mysql:host=' . $host . ';dbname=' . $dbname, $user, $password);
 				$pdo->exec("SET CHARACTER SET utf8");
 				return $pdo;
 			}
