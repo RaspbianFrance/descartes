@@ -78,7 +78,7 @@
 
 			if (!is_array($descartesRoutes[$controller][$method]))
 			{
-				return $url . $descartesRoutes[$controller][$method] . $getParamsString;
+				$descartesRoutes[$controller][$method] = [$descartesRoutes[$controller][$method]];
 			}
 
 			foreach ($descartesRoutes[$controller][$method] as $route)
