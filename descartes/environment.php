@@ -18,7 +18,7 @@
 
 	//On définit le chemin des ressources back
 	define('PWD_CONTROLLER', PWD . '/controllers'); //Dossier des controllers
-	define('PWD_MODEL', PWD . '/model'); //Dossier des models
+	define('PWD_MODEL', PWD . '/models'); //Dossier des models
 	define('PWD_TEMPLATES', PWD . '/templates'); //Dossier des templates
 	define('PWD_MODULES', PWD . '/modules'); //Dossier des modules
 	define('PWD_CACHE', PWD . '/cache'); //Dossier du cache
