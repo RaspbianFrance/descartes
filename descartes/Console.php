@@ -1,262 +1,181 @@
 <?php
 	/**
-	 * Cette classe gère l'appel d'une console
+     * Class to route console query
 	 */
 	class Console
 	{
-		public $command; //Commande invoquée complète (sous forme de tableau)
-
 		/**
-		 * Constructeur de la classe console
-		 * @param mixed $command : Tableau de la commande appelée (voir $argv). Si non fourni la console est construite vide.
+         * Check if a command explicitly ask for help
+         * @param array $command : Command called
+         * @param boolean : True if need help, false else
 		 */
-		public function __construct($command = false)
-		{
-			if ($command)
-			{
-				$this->command = $command;
-			}
-			else
-			{
-				$this->command = [];
-			}
-		}
-
-		//Getters et setters
-		public function getCommand()
-		{
-			return $this->command;
-		}
-
-		public function setCommand($value)
-		{
-			$this->command = $value;
-		}
-
-		/**
-		 * Cette méthode vérifie si une commande demande explicitement d'appeler l'aide
-		 * @param array $command : La commande appelée
-		 * @param boolean : Vrai si on doit appeler l'aide, faux sinon
-		 */
-		public function parseForHelp ($command)
+		private static function is_asking_for_help (array $command) : bool
 		{
 			return (isset($command[1]) && $command[1] == '--help');
 		}
 
-		/**
-		 * Retourne le controlleur à appeler d'après une commande
-		 * @param array $command : La commande à analyser
-		 * @return mixed : Le nom du controlleur à appeler si la commande en contient un, et faux sinon ou si le controlleur n'existe pas
+
+        /**
+         * Search name of controller to call and verify if it exist
+		 * @param array $command : Command called
+         * @return string | bool : False if controller didn't exist. Name of controller if find
 		 */
-		public function parseForController($command)
+		private static function extract_controller (array $command)
 		{
-			//Si on doit chercher de l'aide globale, on retire la demande d'aide
-			if ($this->parseForHelp($command))
+            //If we need help, we remove help flag
+			if (self::is_asking_for_help($command))
 			{
 				unset($command[1]);
 				$command = array_values($command);	
 			}
 
-			//Pas de controlleur à appeler
+            //If no controller found
 			if (!isset($command[1]))
 			{
 				return false;
 			}
 
-			$controllerName = $command[1];
+			$controller = $command[1];
 
-			if (!class_exists($controllerName))
+			if (!class_exists($controller))
 			{
 				return false;
 			}
 
-			return $controllerName;
+			return $controller;
 		}
 
-		/**
-		 * Retourne la méthode à appeler d'après une commande
-		 * @param array $command : La commande à analyser
-		 * @return mixed : Le nom de la méthode à appeler si la commande en contient une, et faux sinon ou si la méthode n'existe pas pour le controlleur demandé
+
+        /**
+         * Search name of the method to call, an verify it exist and is available
+         * @param array $command : Command called
+         * @param string $controller : Name of controller of the method
+         * @return string | bool : False if method not found, not exist or not available, method name else
 		 */
-		public function parseForMethod($command)
+		private static function extract_method (array $command, string $controller)
 		{
-			//Si on doit chercher de l'aide globale, on retire la demande d'aide
-			if ($this->parseForHelp($command))
+            //Remove help flag if needed
+            if ($this->is_asking_for_help($command))
 			{
 				unset($command[1]);
 				$command = array_values($command);	
 			}
 
-			//Le controlleur n'existe pas			
-			if (!$controllerName = $this->parseForController($command))
-			{
-				return false;
-			}
-
-			//Si on a pas fourni de méthode
+            //If no method passed
 			if (!isset($command[2]))
 			{
 				return false;
 			}
 
-			$methodName = $command[2];
+			$method = $command[2];
 
-			//La méthode n'existe pas
-			if (!method_exists($controllerName, $methodName))
+			if (!method_exists($controller, $method))
 			{
 				return false;
 			}
 
-			return $methodName;
+			return $method;
 		}
 
-		/**
-		 * Retourne les paramètres d'une méthode d'après une commande
+
+        /**
+         * Extract params from the command
 		 * @param array $command : La commande à analyser
-		 * @return mixed : Le tableau des paramètres fournis (au format 'name' => 'value') ou faux si la méthode ou le controlleur n'existe pas
-		 */		 
-		public function parseForParams($command)
+         * @return mixed : Array of params (format name => value).
+         * @return array | bool : An array with parameters in order we want theme to be passed to method. False if a need parameter is missing
+		 */
+		private static function extract_params (array $command, string $controller, string $method)
 		{
-			//Si on doit chercher de l'aide globale, on retire la demande d'aide
-			if ($this->parseForHelp($command))
-			{
-				unset($command[1]);
-				$command = array_values($command);	
-			}
-
-			//Le controlleur n'existe pas
-			if (!$controllerName = $this->parseForController($command))
-			{
-				return false;
-			}
-
-			//La méthode n'existe pas
-			if (!$methodName = $this->parseForMethod($command))
-			{
-				return false;
-			}
-
-			//On construit la liste des arguments passés à la commande au format 'name' => 'value'
+            //Remove invocation, controller and method from command
 			unset($command[0], $command[1], $command[2]);
-			$command = array_values($command);
+            
+            $command = array_values($command);
 			$params = [];
 
 			foreach ($command as $param)
 			{
 				$param = explode('=', $param, 2);
-				$paramName = str_replace('--', '', $param[0]);
-				$paramValue = $param[1];
-				$params[$paramName] = $paramValue;
+				$name = str_replace('--', '', $param[0]);
+				$value = $param[1];
+				$params[$name] = $value;
 			}
 
-			return $params;
-		}
-
-		/**
-		 * Vérifie si une commande contient tous les paramètres obligatoires d'une méthode et retourne un tableau des arguments remplis
-		 * @param array $command : La commande à analyser
-		 * @return mixed : Si tout est bon, un tableau un contenant les différents paramètres dans l'ordre où ils doivent êtres passé à la méthode. Sinon, si par exemple un paramètre obligatoire est manquant false.
-		 */
-		public function checkParametersValidityForCommand($command)
-		{
-			//Le controlleur n'existe pas
-			if (!$controllerName = $this->parseForController($command))
-			{
-				return false;
-			}
-
-			//La méthode n'existe pas
-			if (!$methodName = $this->parseForMethod($command))
-			{
-				return false;
-			}
-
-			//Les paramètres retournes une erreur
-			$commandParams = $this->parseForParams($command);
-			if ($commandParams === false)
-			{
-				return false;
-			}
-
-			//On construit la liste des arguments de la méthode, dans l'ordre
-			$reflection = new ReflectionMethod($controllerName, $methodName);
-			$methodArguments = [];
+			$reflection = new ReflectionMethod($controller, $methode);
+			$method_arguments = [];
 
 			foreach ($reflection->getParameters() as $parameter)
 			{
-				//Si le paramètre n'est pas fourni et n'as pas de valeur par défaut
-				if (!array_key_exists($parameter->getName(), $commandParams) && !$parameter->isDefaultValueAvailable())
+				if (!array_key_exists($parameter->getName(), $params) && !$parameter->isDefaultValueAvailable())
 				{
 					return false;
 				}
 
-				//Si on a une valeur par défaut dispo, on initialise la variable avec
 				if ($parameter->isDefaultValueAvailable())
 				{
-					$methodArguments[$parameter->getName()] = $parameter->getDefaultValue();
+					$method_arguments[$parameter->getName()] = $parameter->getDefaultValue();
 				}
 
-				//Si la variable n'existe pas, on passe
-				if (!array_key_exists($parameter->getName(), $commandParams))
+				if (!array_key_exists($parameter->getName(), $params))
 				{
 					continue;
 				}
 
 				//On ajoute la variable dans le tableau des arguments de la méthode	
-				$methodArguments[$parameter->getName()] = $commandParams[$parameter->getName()];
+				$method_arguments[$parameter->getName()] = $params[$parameter->getName()];
 			}
 
-			return $methodArguments;
+			return $method_arguments;
 		}
 
-		/**
-		 * Cette méthode retourne le texte d'aide d'un controller ou d'une de ses méthodes
-		 * @param array $command : La commande appelée
-		 * @param string $controller : Le nom du controller pour lequel on veux l'aide, ou false (par défaut)
-		 * @param string $method : La nom de la méthode pour laquelle on veux de l'aide, ou false (par défaut)
-		 * @param boolean $missingArguments : Si il manque des arguments obligatoires pour la méthode (par défaut faux)
+
+        /**
+         * Generate help text
+		 * @param array $command : Called command
+         * @param ?string $controller : Name of the controller we want help for, null if not given
+         * @param ?string $method : Name of the method we want help for, null if not giver
+         * @param boolean $missing_arguments : If there is required arguments missing, false by default
 		 * @param string : Le texte d'aide à afficher
 		 */
-		public function getHelp ($command, $controller = false, $method = false, $missingArguments = false)
-		{
+		private static function generate_help_text (array $command, ?string $controller = null, ?string $method = null, bool $missing_arguments = false) : string
+        {
+
 			$retour = '';
 
-			$retour .= "Aide : \n";
+			$retour .= "Help : \n";
 
 			//Si pas de controlleur, on sort l'aide par défaut
 			if (!$controller)
 			{
-				$retour .= "Vous n'avez pas fournit de controller à appeler. Pour voir l'aide : " . $command[0] . " --help <nom controller> <nom methode>\n";
+				$retour .= "You havn't supplied a Controller to call. To see help of a Controller : " . $command[0] . " --help <name controller> <name method>\n";
 				return $retour;
 			}
 
-			if ($missingArguments)
+			if ($missing_arguments)
 			{
-				$retour .= "Vous n'avez pas fournis tous les arguments obligatoire pour cette fonction. Pour rappel : \n";
+				$retour .= "Some required arguments are missing. \n";
 			}
 
-			//Si on a pas définie la méthode, on les fait toutes, sinon juste celle définie
 			if (!$method)
 			{
-				$retour .= 'Aide du controller ' . $controller . "\nMéthodes : \n";
+                $retour .= 'Help of Controller ' . $controller . "\n" . 
+                           "Methods : \n";
+
 				$reflection = new ReflectionClass($controller);
-				$reflectionMethods = $reflection->getMethods();
+				$reflection_methods = $reflection->getMethods();
 			}
 			else
 			{
-				$reflectionMethods = [new ReflectionMethod($controller, $method)];
-				$retour .= 'Aide du controller ' . $controller . ' et de la méthode ' . $method . "\n";
+				$reflection_methods = [new ReflectionMethod($controller, $method)];
+				$retour .= 'Help of Controller ' . $controller . ' and method ' . $method . "\n";
 			}
 
-			//Pour chaque méthode, on affiche l'aide
-			foreach ($reflectionMethods as $reflectionMethod)
+			foreach ($reflection_methods as $reflection_method)
 			{
-				$retour .= "    " . $reflectionMethod->getName();
+				$retour .= "    " . $reflection_method->getName();
 
-				//On ajoute chaque paramètre au retour
-				foreach ($reflectionMethod->getParameters() as $parameter)
+				foreach ($reflection_method->getParameters() as $parameter)
 				{
-					$retour .= ' --' . $parameter->getName() . "=<value" . ($parameter->isDefaultValueAvailable() ? ' (par défaut, ' . gettype($parameter->getDefaultValue()) . ':' . str_replace(PHP_EOL, '', print_r($parameter->getDefaultValue(), true)) . ')': '') . ">";
+					$retour .= ' --' . $parameter->getName() . "=<value" . ($parameter->isDefaultValueAvailable() ? ' (by default, ' . gettype($parameter->getDefaultValue()) . ':' . str_replace(PHP_EOL, '', print_r($parameter->getDefaultValue(), true)) . ')': '') . ">";
 				}
 
 				$retour .= "\n";
@@ -265,44 +184,43 @@
 			return $retour;
 		}
 
-		/**
-		 * Cette méthode tente d'appeler le controlleur et la méthode correspondant à la commande, avec les arguments demandés
-		 * @param array $command : La commande appelée
+        /**
+         * This method call controller and method from command
+         * @param array $command : Command to call
+         * @param $args : Arguments to pass to Controller constructor
+         * @return bool : False on error, true else
 		 */
-		public function executeCommand ($command)
-		{
-			//Si on a pas de controller à appeler
-			if (!$controller = $this->parseForController($command))
-			{
-				echo $this->getHelp($command);
-				return false;
-			}
+		public static function execute_command (array $command, ...$args)
+        {
+            $controller = self::extract_controller($command);
+            if (!$controller)
+            {
+                echo self::generate_help_text($command);
+                return true;
+            }
 
-			//Si on a pas de méthode à appeler
-			if (!$method = $this->parseForMethod($command))
-			{
-				echo $this->getHelp($command, $controller);
-				return false;
-			}
+            $method = self::extract_method($command);
+            if (!$method)
+            {
+                echo self::generate_help_text($command, $controller);
+                return true;
+            }
+            
+            $params = self::extract_params($command, $controller, $method);
+            if (!$params)
+            {
+                echo self::generate_help_text($command, $controller, $method, true);
+                return true;
+            }
 
-			//Si on a pas tous les arguments necessaires à la méthode
-			$params = $this->checkParametersValidityForCommand($command);
-			if ($params === false)
-			{
-				echo $this->getHelp($command, $controller, $method, true);
-				return false;
-			}
+            $asking_for_help = is_asking_for_help($command);
+            if ($asking_for_help)
+            {
+                echo self::generate_help_text($command, $controller, $method);
+                return true;
+            }
 
-			//Si on doit appeler l'aide
-			if ($this->parseForHelp($command))
-			{
-				echo $this->getHelp($command, $controller, $method);
-				return false;
-			}
-
-			$controller = new $controller();
-
-			//Si tout est bien ok, on appel la méthode
+			$controller = new $controller(...$args);
 			return call_user_func_array([$controller, $method], $params);
 		}
 

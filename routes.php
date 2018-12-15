@@ -1,16 +1,18 @@
 <?php
-	$descartesRoutes = array(
+    $routes = array(
 		'Index' => [
 			'home' => '/',
 			'showValue' => [
 				'/show-value/{firstValue}/',
 				'/show-value/{firstValue}/{secondValue}/',
 			],
-		],
+        ],
+
 		'DescartesAdministratorLogin' => [
 			'login' => '/admin/',
 			'logout' => '/admin/logout/',
-		],
+        ],
+
 		'DescartesAdministratorAdmin' => [
 			'index' => '/admin/index',
 			'add' => [
@@ -39,4 +41,6 @@
 			],
 
 		],
-	);
+    );
+
+    define('ROUTES', $routes);

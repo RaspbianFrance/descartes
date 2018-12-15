@@ -4,7 +4,7 @@
 	*/
 
 	//On défini l'environment
-	$environment = [
+	$env = [
 		'prod' => [
 			//Si vrai, on active le cache
 			'ACTIVATING_CACHE' => true,

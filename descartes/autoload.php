@@ -18,6 +18,10 @@
 		{
 			require_once(PWD . '/descartes/' . $class . '.php');
 		}
+		elseif (file_exists(PWD . '/descartes/exceptions/' . $class . '.php'))
+		{
+			require_once(PWD . '/descartes/exceptions/' . $class . '.php');
+		}
 		elseif (file_exists(PWD . '/' . $class . '.php'))
 		{
 			require_once(PWD . '/' . $class . '.php');

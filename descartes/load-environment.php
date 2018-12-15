@@ -1,32 +1,55 @@
 <?php
-	//On va inclure les constantes fixes
-	require_once(__DIR__ . '/environment.php');
 
-	//0n va inclure les constantes customisable
-	require_once(PWD . '/environment.php');
+    function load_env ()
+    {
+        $environment = [];
+        $env = [];
 
-	//On va définir les constantes customisable
-	foreach ($environment[ENVIRONMENT] as $name => $value)
-	{
-		define(mb_strtoupper($name), $value);
-	}
+        //Load descartes global env
+        require_once(__DIR__ . '/env.php');
+        $environment = array_merge($environment, $env);
 
-	//On va inclure les constantes de tous les modules (dans l'ordre du dossier)
-	foreach (scandir(PWD_MODULES) as $filename)
-	{
-		if ($filename == '.' || $filename == '..')
-		{
-			continue;
-		}
-		
-		if (!file_exists(PWD_MODULES . '/' . $filename . '/environment.php'))
-		{
-			continue;
-		}
+        //Load descartes override env
+        if (file_exists(__DIR__ . '/../env.descartes.php'))
+        {
+            require_once(__DIR__ . '/../env.descartes.php');
+            $environment = array_merge($environment, $env);
+        }
+        
+        //Load user defined global env
+        if (file_exists(__DIR__ . '/../env.php'))
+        {
+            require_once(__DIR__ . '/../env.php');
+            $environment = array_merge($environment, $env);
+        }
 
-		require_once(PWD_MODULES . '/' . $filename . '/environment.php');
-		foreach ($environment[ENVIRONMENT] as $name => $value)
-		{
-			define(mb_strtoupper($name), $value);
-		}
-	}
+        //Define all constants 
+        foreach ($environment as $name => $value)
+        {
+            define(mb_strtoupper($name), $value);
+        }
+
+        //Load user defined env specific env
+        $environment = [];
+        $env = [];
+        
+        if (defined(ENV) && file_exists(__DIR__ . '/../env.' . ENV . '.php'))
+        {
+            require_once(__DIR__ . '/../env.' . ENV . '.php');
+            $environment = array_merge($environment, $env);
+        }
+
+        //Define env specific constants
+        foreach ($environment as $name => $value)
+        {
+            define(mb_strtoupper($name), $value);
+        }
+    }
+
+    function load_exceptions ()
+    {
+        require_once('./Exceptions.php');
+    }
+
+    load_env();
+    load_exceptions();

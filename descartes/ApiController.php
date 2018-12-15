@@ -9,7 +9,7 @@
 		/**
 		 * Cette fonction construit la classe, elle prend en paramètre obligatoire le type de méthode (PUT, GET, POST, etc) avec laquel on a appelée la page
 		 */
-		public function __construct ()
+		public function __construct (__construct(?PDO pdo = null) : void
 		{
 			//On va choisir le type à employer
 			$method = $_SERVER['REQUEST_METHOD'];
@@ -32,7 +32,7 @@
 			}
 
 			//On construit aussi le controller traditionnel
-			parent::__construct();
+			parent::__construct($pdo);
 		}
 
 		/**
@@ -41,7 +41,7 @@
 		 * @param string $value : La valeur à donner
 		 * @return ApiController : On retourne l'API controlleur lui meme pour pouvoir chainer
 		 */
-		public function setHeader ($key, $value)
+		public function set_header ($key, $value)
 		{
 			header($key . ': ' . $value);
 			return $this;	
@@ -52,7 +52,7 @@
 		 * @param int $code : Le numéro du code de retour HTTP
 		 * @return ApiController : On retourne l'API controlleur lui meme pour pouvoir chainer
 		 */
-		public function setHttpCode ($code)
+		public function set_http_code ($code)
 		{
 			http_response_code($code);
 			return $this;
@@ -63,9 +63,9 @@
 		 * @param boolean $success : Si la requete est un succes ou non (par défaut à true)
 		 * @return ApiController : On retourne l'API controlleur lui meme pour pouvoir chainer
 		 */
-		public function autoHttpCode ($success = true)
+		public function auto_http_code ($success = true)
 		{
-			$responseCodes = array(
+			$response_codes = array(
 				'GET' => array(
 					'success' => 200,
 					'fail' => 404,
@@ -90,7 +90,7 @@
 
 			$key = $success ? 'success' : 'fail';
 
-			return $this->setHttpCode($responseCodes[$this->method][$key]);
+			return $this->set_http_code($response_codes[$this->method][$key]);
 		}
 	
 		/**
@@ -120,7 +120,7 @@
 		 * @param string $location : La location à renvoyer
 		 * @return ApiController : On retourne l'API controlleur lui meme pour pouvoir chainer
 		 */
-		public function setLocation ($location)
+		public function set_location ($location)
 		{
 			header('Location: ' . $location);
 			return $this;
