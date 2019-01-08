@@ -1,31 +1,23 @@
 <?php
 namespace controllers\publics;
+
 class Index extends \Controller
 {
-	//Pour ajouter du cache, ajouter un attribut :
-	//public $cacheHome = durée_en_minutes;
-
-	//Pour ajouter un cache custom, ajouter une methode :
-	//public function _cacheCustomHome() { return 'v1'; }
-
-	//Pour ajouter un header sur le cache, ajouter une methode :
-	//public function _cacheHeaderNomMethod() { return header("Content-type: text/plain") }
-
 	/**
-	 * Page d'accueil du site
+	 * Home Page
 	 */	
 	public function home()
 	{
-		return $this->render("Index/home");
+		return $this->render("index/home");
 	}
 
-	/**
-	 * Page qui affiche une ou deux valeures passées via les paramètres
-	 * @param string $firstValue : La première valeur à afficher
-	 * @param string $secondValue : La seconde valeur à afficher. Optionnelle
+    /**
+     * Page showing values, with some optionnal
+     * @param string $first_value : First value to show
+     * @param int $second_value : Second value to show
 	 */
-	public function showValue($firstValue, $secondValue = false)
+	public function show_value(string $first_value, ?int $second_value = null)
 	{
-		return $this->render('Index/showValue', ['firstValue' => $firstValue, 'secondValue' => $secondValue]);
+		return $this->render('index/show-value', ['first_value' => $first_value, 'second_value' => $second_value]);
 	}
 }

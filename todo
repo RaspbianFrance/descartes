@@ -1,9 +1,0 @@
-- Update console exctract_params
-
-- Voir pour distribuer le framework via composer
-
-- Supprimer le système de module et le remplacer par du composer
-
-- Mettre des backquotes sur l'orm
-
-- Uniformiser snake case (console, model, app exemple)

@@ -8,15 +8,12 @@
          * Generate an url for a page of the app
          * @param string $controller : Name of controller we want url for
          * @param string $method : Name of method we want url for
-         * @param ?array $params : Parameters we want to transmit to controller method
-         * @param ?array $get_params : Get parameters we want to add to url
+         * @param array $params : Parameters we want to transmit to controller method
+         * @param array $get_params : Get parameters we want to add to url
          * @return string : the generated url
          */
-        public static function url (string $controller, string $method, ?array $params = null, ?array $get_params = null) string
+        public static function url (string $controller, string $method, array $params = [], array $get_params = []) : string
         {
-            $params = $params ?? [];
-            $get_params = $get_params ?? [];
-
             $url = HTTP_PWD;
 
             if (!array_key_exists($controller, ROUTES))
@@ -48,7 +45,7 @@
                         continue 2;
                     }
 
-                    $route = str_replace('{' . $name . '}', $value);
+                    $route = str_replace('{' . $name . '}', $value, $route);
                 }
 
                 $remain_flag = mb_strpos($route, '{');
@@ -100,10 +97,10 @@
 
                     foreach ($method_routes as $route)
                     {
-                        $route_regex = preg_replace('#\\\{(.+)\\\}#iU', '([^/]+)', preg_quote($route, '#');
+                        $route_regex = preg_replace('#\\\{(.+)\\\}#iU', '([^/]+)', preg_quote($route, '#'));
                         $route_regex = preg_replace('#/$#', '/?', $route_regex);
 
-                        $match = preg_match('#^' . $route_regex . '$#U', $this->url);
+                        $match = preg_match('#^' . $route_regex . '$#U', $url);
                         if (!$match)
                         {
                             continue;
@@ -158,6 +155,8 @@
         protected static function compute_controller (string $controller)
         {
             $controller = str_replace('/', '\\', PWD_CONTROLLER . '/publics/') . $controller;
+            $controller = mb_strcut($controller, mb_strlen(PWD));
+            
             if (!class_exists($controller))
             {
                 return false;
@@ -201,7 +200,7 @@
             $prefix_method = $prefix_method ?? '';
 
 
-            $method = $prefix_method . $method['method'];
+            $method = $prefix_method . $method;
             if (!method_exists($controller, $method))
             {
                 return false;
@@ -301,27 +300,28 @@
         {
             $url = static::clean_url($url);
 
-            $computed_url = map_url($routes, $url);
+            $computed_url = static::map_url($routes, $url);
             if (!$computed_url)
             {
                 static::error_404();
             }
 
-            $params = map_params_from_url($url, $computed_url['route'], $computed_url['route_regex']);
 
-            $controller = $this->compute_controller($computed_url['controller']);
+            $params = static::map_params_from_url($url, $computed_url['route'], $computed_url['route_regex']);
+
+            $controller = static::compute_controller($computed_url['controller']);
             if (!$controller)
             {
-                throw new DescartesExceptionRouterInvocationError('Try to call controller ' . $controller . ' that did not exists.');
+                throw new DescartesExceptionRouterInvocationError('Try to call controller ' . $computed_url['controller'] . ' that did not exists.');
             }
 
-            $method = $this->compute_method($controller, $method);
+            $method = static::compute_method($controller, $computed_url['method']);
             if (!$method)
             {
-                throw new DescartesExceptionRouterInvocationError('Try to call the method ' . $method . ' that did not exists from controller ' . $controller . '.');
+                throw new DescartesExceptionRouterInvocationError('Try to call the method ' . $computed_url['method'] . ' that did not exists from controller ' . $controller . '.');
             }
 
-            $compute_params_result = compute_params($controller, $method, $params);
+            $compute_params_result = static::compute_params($controller, $method, $params);
             if (!$compute_params_result['success'])
             {
                 throw new DescartesExceptionRouterInvocationError($compute_params_result['message']);

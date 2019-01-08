@@ -4,6 +4,11 @@
 	###############
 	require_once(__DIR__ . '/descartes/load-environment.php');
 
+    ###########
+	# ROUTING #
+	###########
+    require_once(PWD . '/routes.php'); //Include routes
+
 	############
 	# SESSIONS #
 	############
@@ -17,7 +22,7 @@
 	}
 
 	##############
-	# INCLUDE #
+	# INCLUDE    #
 	##############
     //Use autoload
 	require_once(PWD . '/descartes/autoload.php');
@@ -28,11 +33,6 @@
 	#########
     //Create new PDO instance
 	$pdo = Model::connect(DATABASE_HOST, DATABASE_NAME, DATABASE_USER, DATABASE_PASSWORD);
-
-	###########
-	# ROUTING #
-	###########
-    require_once(PWD . '/routes.php'); //Include routes
 
     //Routing current query
     Router::route(ROUTES, $_SERVER['REQUEST_URI'], $pdo);

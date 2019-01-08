@@ -33,7 +33,7 @@
         $environment = [];
         $env = [];
         
-        if (defined(ENV) && file_exists(__DIR__ . '/../env.' . ENV . '.php'))
+        if (defined('ENV') && file_exists(__DIR__ . '/../env.' . ENV . '.php'))
         {
             require_once(__DIR__ . '/../env.' . ENV . '.php');
             $environment = array_merge($environment, $env);
@@ -46,10 +46,4 @@
         }
     }
 
-    function load_exceptions ()
-    {
-        require_once('./Exceptions.php');
-    }
-
     load_env();
-    load_exceptions();
