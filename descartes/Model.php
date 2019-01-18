@@ -95,78 +95,6 @@
         }
         
         /**
-         * Get all tables of db
-         * @return array : List of tables names
-         */
-        public function get_all_tables () : array
-        {
-            $query = 'SHOW TABLES';
-            $tables = $this->run_query($query);
-            $tables_names = array();
-
-            foreach ($tables as $table)
-            {
-                $tables_names[] = array_values($table)[0];
-            }
-
-            return $tables_names;
-        }
-
-        /**
-         * Check if a table exist
-         * @param string $table : Table name
-         * @return bool : True if table exist, false if not
-         */
-        public function table_exist (string $table) : bool
-        {
-                $tables = $this->get_all_tables();
-                return in_array($table, $tables);
-        }
-        
-        
-        /**
-         * Get columns of a table as a string
-         * @param string $table : Name of table we want columns of
-         * @param ?string $prefix : Prefix to use for fieldname, for example table name, if used, we add AS alias like prefix_fieldname to result
-         * @return array : String list of columns separated by comas (using as if prefix set) | false if table does not exist
-         */
-        public function get_columns_for_table (string $table, ?string $prefix = null)
-        {
-            if ($this->tableExist($table))
-            {
-                $query = 'SHOW COLUMNS FROM `' . $table . '`';
-                $datas = [];
-                
-                $fields = $this->run_query($query, $datas, self::FETCHALL);
-
-                $fields_names = [];
-                foreach ($fields as $field)
-                {
-                    $fields_names[] = $prefix ? '`' . $prefix . '`.`' . $field['Field'] . '` AS `' . $prefix . '_' . $field['Field'] . '`' : '`' . $field['Field'] . '`';
-                }
-
-                return implode(', ', $fields_names);
-            }
-
-            return false;
-        }
-
-
-        /**
-        * Check if a field exist in table
-        * @param string $field : Field name
-        * @param string $table : Table name
-        * @return bool : True if exist, false else
-        */
-        public function field_exist(string $field, string $table) : bool
-        {
-            $fields = $this->get_columns_for_table($table);    
-            $fields = $fields ? explode(', ', $fields) : array();
-            return in_array('`' . $field . '`', $fields);
-        }
-
-
-        /**
          * Return last inserted id
          * return int : Last inserted id
          */
@@ -174,118 +102,6 @@
         {
             return $this->pdo->lastInsertId();
         }
-
-
-        /**
-         * Describe a table
-         * @param string $table : Name of table to describe
-         * @return mixed : An array describing table else
-         */
-        public function describe_table ($table)
-        {
-            $query = 'DESCRIBE `' . $table . '`';
-            $fields = $this->run_query($query);
-
-            $return = [];
-            foreach ($fields as $field)
-            {
-                $field_info = array();
-                $field_info['NAME'] = $field['Field'];
-                $field_info['NULL'] = $field['Null'] == 'NO' ? false : true;
-                $field_info['AUTO_INCREMENT'] = $field['Extra'] == 'auto_increment' ? true : false;
-                $field_info['PRIMARY'] = $field['Key'] == 'PRI' ? true : false;
-                $field_info['FOREIGN'] = $field['Key'] == 'MUL' ? true : false;
-                $field_info['UNIQUE'] = $field['Key'] == 'UNI' ? true : false;
-                $field_info['TYPE'] = mb_convert_case(preg_replace('#[^a-z]#ui', '', $field['Type']), MB_CASE_UPPER);
-                $field_info['SIZE'] = filter_var($field['Type'], FILTER_SANITIZE_NUMBER_INT);
-                $field_info['HAS_DEFAULT'] = $field['Default'] !== NULL ? true : false;
-                $field_info['DEFAULT'] = $field['Default'];
-                
-                $return[$field['Field']] = $field_info;
-            }
-
-            return $return;
-        }
-
-        /**
-         * Return primary field of a table
-         * @param string $table : name of table to get primary field of
-         * @return string : name of primary field, null if no primary
-         */
-        public function get_primary_field (string $table) : ?string
-        {
-            $fields = $this->describe_table($table);
-
-            foreach ($fields as $field)
-            {
-                if ($field['PRIMARY'])
-                {
-                    return $field['NAME'];
-                }
-            }
-
-            return null;
-        }
-
-        /**
-         * Return table_name and field_name a foregin key refer to
-         * @param string $table : table containing foreign key
-         * @param string $field : field that foreign key is on
-         * @return mixed : Null on error, array with table_name and field_name
-         */
-        public function get_reference_for_foreign (string $table, string $field) : ?array
-        {
-            if (!$this->field_exist($field, $table))
-            {
-                return null;
-            }
-
-            $query = 'SELECT `referenced_table_name` as `table_name`, `referenced_column_name` as `field_name` FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE WHERE table_name = :table AND column_name = :field AND referenced_table_name IS NOT NULL';
-            
-            $params = array(
-                'table' => $table,
-                'field' => $field,
-            );
-
-            return $this->run_query($query, $params, self::FETCH);
-        }
-
-        /**
-         * Find possibles values for a foreign key
-         * @param string $table : table name
-         * @param string $field : field name
-         * @return mixed : Null on error or array of values
-         */
-        public function get_possible_values_for_foreign (string $table, string $field) : ?array
-        {
-            $reference = $this->get_reference_for_foreign($table, $field);
-            if (!$reference = $this->get_reference_for_foreign($table, $field))
-            {
-                return null;
-            }
-
-            //On recupère les valeurs possible de la table
-            $query = 'SELECT DISTINCT `' . $reference['field_name'] . '` as possible_value FROM `' . $reference['table_name'] . '`';
-            return $this->run_query($query);
-        }
-
-        /**
-         * Count number of line in a table
-         * @param string $table : table name
-         * @return int : number of lines
-         */
-        public function count_table (string $table) : ?int
-        {
-            if (!$this->table_exist($table))
-            {
-                return null;
-            }
-
-            $query = "SELECT COUNT(*) as `count` FROM `" . $table . "`";
-            
-            $return = $this->run_query($query, array(), self::FETCH);
-            return $return['count'];
-        }     
 
         /*
             Fonctions d'execution des requetes ou de génération
@@ -462,6 +278,36 @@
 
             return $result[0];
         }
+        
+        /**
+         * Count line from table, posssibly with some conditions
+         * @param array $conditions : conditions of query Les conditions pour la mise à jour sous la forme "label" => "valeur". Un operateur '<, >, <=, >=, !' peux précder le label pour modifier l'opérateur par défaut (=)
+         */
+        public function count (string $table, array $conditions = []) : int
+        {
+            $wheres = array();
+            $params = array();
+            foreach ($conditions as $label => $value)
+            {
+                $condition = $this->evaluate_condition($label, $value);
+                $wheres[] = $condition['QUERY'];
+                $params = array_merge($params, $condition['PARAM']);
+            }
+
+            $query = "SELECT COUNT(*) as `count` FROM " . $table . " WHERE 1 " . (count($wheres) ? 'AND ' : '') . implode('AND ', $wheres);
+            
+            $query = $this->pdo->prepare($query);
+
+            foreach ($params as $label => &$param)
+            {
+                $query->bindParam(':' . $label, $param);
+            }
+
+            $query->setFetchMode(PDO::FETCH_ASSOC);
+            $query->execute();
+
+            return $query->fetch()['count'];
+        }
 
 
         /**
@@ -469,6 +315,7 @@
          * @param string $table : table name
          * @param array $datas : new data to set
          * @param array $conditions : conditions of update, Les conditions pour la mise à jour sous la forme "label" => "valeur". Un operateur '<, >, <=, >=, !' peux précder le label pour modifier l'opérateur par défaut (=)
+         * @param array $conditions : conditions to use, format 'fieldname' => 'value', fieldname can be preceed by operator '<, >, <=, >=, ! or = (by default)' to adapt comparaison operator
          * @return mixed : Number of line modified
          */
         public function update (string $table, array $datas, array $conditions = array()) : int
@@ -500,7 +347,7 @@
         /**
          * Delete from table according to certain conditions
          * @param string $table : Table name
-         * @param array $conditions : conditions of update, Les conditions pour la mise à jour sous la forme "label" => "valeur". Un operateur '<, >, <=, >=, !' peux précder le label pour modifier l'opérateur par défaut (=)
+         * @param array $conditions : conditions to use, format 'fieldname' => 'value', fieldname can be preceed by operator '<, >, <=, >=, ! or = (by default)' to adapt comparaison operator
          * @return mixed : Number of line deleted
          */
         public function delete (string $table, array $conditions = []) : int
