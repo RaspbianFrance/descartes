@@ -5,6 +5,4 @@
 
 	//On défini l'environment
     $env = [
-        'ENV' => 'dev',
-        'SESSION_NAME' => 'descartes',
     ];
