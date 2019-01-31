@@ -21,14 +21,14 @@
          * @return string | bool : False if controller didn't exist. Name of controller if find
 		 */
 		private static function extract_controller (array $command)
-		{
+        {
             //If we need help, we remove help flag
 			if (self::is_asking_for_help($command))
 			{
 				unset($command[1]);
 				$command = array_values($command);	
-			}
-
+            }
+            
             //If no controller found
 			if (!isset($command[1]))
 			{
@@ -36,6 +36,7 @@
 			}
 
 			$controller = $command[1];
+            $controller = str_replace('/', '\\', $controller);
 
 			if (!class_exists($controller))
 			{
@@ -55,7 +56,7 @@
 		private static function extract_method (array $command, string $controller)
 		{
             //Remove help flag if needed
-            if ($this->is_asking_for_help($command))
+            if (self::is_asking_for_help($command))
 			{
 				unset($command[1]);
 				$command = array_values($command);	
@@ -100,7 +101,7 @@
 				$params[$name] = $value;
 			}
 
-			$reflection = new ReflectionMethod($controller, $methode);
+			$reflection = new ReflectionMethod($controller, $method);
 			$method_arguments = [];
 
 			foreach ($reflection->getParameters() as $parameter)
@@ -199,7 +200,7 @@
                 return true;
             }
 
-            $method = self::extract_method($command);
+            $method = self::extract_method($command, $controller);
             if (!$method)
             {
                 echo self::generate_help_text($command, $controller);
@@ -213,7 +214,7 @@
                 return true;
             }
 
-            $asking_for_help = is_asking_for_help($command);
+            $asking_for_help = self::is_asking_for_help($command);
             if ($asking_for_help)
             {
                 echo self::generate_help_text($command, $controller, $method);
