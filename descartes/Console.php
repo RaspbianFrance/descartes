@@ -208,7 +208,7 @@
             }
             
             $params = self::extract_params($command, $controller, $method);
-            if (!$params)
+            if ($params === false)
             {
                 echo self::generate_help_text($command, $controller, $method, true);
                 return true;
