@@ -5,7 +5,7 @@
     $http_dir_path = '/descartes'; //Path we need to put after servername in url to access app
     $http_protocol = (isset($_SERVER['HTTPS']) ? 'https' : 'http') . '://';
     $http_server_name = isset($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : 'localhost';
-    $http_server_port = isset($_SERVER['SERVER_PORT']) ? ($_SERVER['SERVER_PORT'] == 80) ? '' : $_SERVER['SERVER_PORT'] : '';
+    $http_server_port = isset($_SERVER['SERVER_PORT']) ? ($_SERVER['SERVER_PORT'] == 80) ? '' : ':' . $_SERVER['SERVER_PORT'] : '';
     $pwd = substr(__DIR__, 0, strrpos(__DIR__, '/'));
     $http_pwd = $http_protocol . $http_server_name . $http_server_port . $http_dir_path;
 
