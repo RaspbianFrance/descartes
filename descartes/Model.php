@@ -217,7 +217,7 @@
                 $params = array_merge($params, $condition['PARAM']);
             }
 
-            $query = "SELECT * FROM " . $table . " WHERE 1 " . (count($wheres) ? 'AND ' : '') . implode('AND ', $wheres);
+            $query = "SELECT * FROM " . $table . " WHERE 1 " . (count($wheres) ? 'AND ' : '') . implode(' AND ', $wheres);
 
             if ($order_by !== null)
             {
@@ -294,7 +294,7 @@
                 $params = array_merge($params, $condition['PARAM']);
             }
 
-            $query = "SELECT COUNT(*) as `count` FROM " . $table . " WHERE 1 " . (count($wheres) ? 'AND ' : '') . implode('AND ', $wheres);
+            $query = "SELECT COUNT(*) as `count` FROM " . $table . " WHERE 1 " . (count($wheres) ? 'AND ' : '') . implode(' AND ', $wheres);
             
             $query = $this->pdo->prepare($query);
 
@@ -340,7 +340,7 @@
             }
 
 
-            $query = "UPDATE `" . $table . "` SET " . implode(', ', $sets) . " WHERE 1 AND " . implode('AND ', $wheres);
+            $query = "UPDATE `" . $table . "` SET " . implode(', ', $sets) . " WHERE 1 AND " . implode(' AND ', $wheres);
             return $this->run_query($query, $params, self::ROWCOUNT);
         }
 
@@ -362,7 +362,7 @@
                 $params = array_merge($params, $condition['PARAM']);
             }
 
-            $query = "DELETE FROM `" . $table . "` WHERE 1 AND " . implode('AND ', $wheres);
+            $query = "DELETE FROM `" . $table . "` WHERE 1 AND " . implode(' AND ', $wheres);
             return $this->run_query($query, $params, self::ROWCOUNT);
         }
 
