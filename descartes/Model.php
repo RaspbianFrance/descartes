@@ -206,7 +206,7 @@
          * @param string $offset : Le nombre de résultats à ignorer (par défaut pas de résultats ignorés)
          * @return mixed : False en cas d'erreur, sinon les lignes retournées
          */
-        public function get (string $table, array $conditions = [], ?string $order_by = null, bool $desc = false, ?int $limit = null, ?int $offset = null)
+        public function select (string $table, array $conditions = [], ?string $order_by = null, bool $desc = false, ?int $limit = null, ?int $offset = null)
         {
             $wheres = array();
             $params = array();
@@ -267,9 +267,9 @@
          * Get one line from table, posssibly with some conditions
          * see get
          */
-        public function get_one (string $table, array $conditions = [], ?string $order_by = null, bool $desc = false, ?int $limit = null, ?int $offset = null)
+        public function select_one (string $table, array $conditions = [], ?string $order_by = null, bool $desc = false, ?int $limit = null, ?int $offset = null)
         {
-            $result = $this->get($table, $conditions, $order_by, $desc, $limit, $offset);
+            $result = $this->select($table, $conditions, $order_by, $desc, $limit, $offset);
 
             if (empty($result[0]))
             {
