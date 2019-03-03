@@ -38,6 +38,13 @@
 			$controller = $command[1];
             $controller = str_replace('/', '\\', $controller);
 
+            $ends_with = mb_substr($controller, -4);
+            if ($ends_with === '.php')
+            {
+                $controller = mb_substr($controller, 0, mb_strlen($controller) - 4);
+            }
+
+
 			if (!class_exists($controller))
 			{
 				return false;
