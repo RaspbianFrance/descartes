@@ -4,12 +4,10 @@
 	 */
 	class ApiController extends Controller
 	{
-		protected $method;
-
 		/**
 		 * Cette fonction construit la classe, elle prend en paramètre obligatoire le type de méthode (PUT, GET, POST, etc) avec laquel on a appelée la page
 		 */
-		public function __construct(?PDO $pdo = null) : void
+		public function __construct() : void
 		{
 			//On va choisir le type à employer
 			$method = $_SERVER['REQUEST_METHOD'];
@@ -30,9 +28,6 @@
 				default :
 					$this->method = 'GET';
 			}
-
-			//On construit aussi le controller traditionnel
-			parent::__construct($pdo);
 		}
 
 		/**

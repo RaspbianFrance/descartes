@@ -4,17 +4,6 @@
 	 */
 	class Controller
     {
-        protected $pdo;
-
-		/**
-         * The controller default constructor
-         * @param PDO|null $pdo : A PDO connexion to the BDD, nullable if no connexion
-		 */
-		public function __construct(?PDO $pdo = null)
-        {
-            $this->pdo = $pdo;
-		}
-
 		/**
          * Render a template for displaying
          * @param string $template : Template name without extension, possibly preceed with a directory name
