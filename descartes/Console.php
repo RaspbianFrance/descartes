@@ -228,7 +228,14 @@
                 return true;
             }
 
-			$controller = new $controller(...$args);
+            $reflection = new ReflectionClass($controller);
+            $reflection_method = $reflection->getMethod($method);
+
+            if (!$reflection_method->isStatic())
+            {
+            	$controller = new $controller(...$args);
+            }
+			
 			return call_user_func_array([$controller, $method], $params);
 		}
 
