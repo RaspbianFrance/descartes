@@ -29,4 +29,4 @@
     require_once(PWD . '/vendor/autoload.php');
 
     //Routing current query
-    Router::route(ROUTES, $_SERVER['REQUEST_URI']);
+    descartes\Router::route(ROUTES, $_SERVER['REQUEST_URI']);

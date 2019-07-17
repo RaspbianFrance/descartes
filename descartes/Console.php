@@ -1,5 +1,6 @@
 <?php
-	/**
+    namespace descartes;
+    /**
      * Class to route console query
 	 */
 	class Console

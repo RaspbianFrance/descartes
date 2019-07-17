@@ -1,4 +1,5 @@
 <?php
+    namespace descartes;
 
     function load_env ()
     {

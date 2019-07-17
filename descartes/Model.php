@@ -1,4 +1,6 @@
 <?php
+    namespace descartes;
+
     /**
      * Cette classe sert de mère à tous les modèles, elle permet de gérer l'ensemble des fonction necessaires aux requetes en base de données
      * @param $pdo : Une instance de PDO

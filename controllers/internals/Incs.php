@@ -1,7 +1,7 @@
 <?php
 namespace controllers\internals;
 
-class Incs extends \Controller
+class Incs extends \descartes\Controller
 {
 	/**
 	 * Head html

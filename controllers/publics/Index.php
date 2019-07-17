@@ -1,7 +1,7 @@
 <?php
 namespace controllers\publics;
 
-class Index extends \Controller
+class Index extends \descartes\Controller
 {
 	/**
 	 * Home Page

@@ -1,4 +1,6 @@
 <?php
+    namespace descartes;
+
     /*
      * Define Descartes env
      */

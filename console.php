@@ -17,5 +17,5 @@
     require_once(PWD . '/routes.php'); //Include routes
 
     //Routing current query
-    Console::execute_command($argv);
+    descartes\Console::execute_command($argv);
 
