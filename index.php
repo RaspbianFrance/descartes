@@ -1,13 +1,5 @@
 <?php
-    ###############
-    # ENVIRONMENT #
-    ###############
-    require_once(__DIR__ . '/descartes/load-environment.php');
-
-    ###########
-    # ROUTING #
-    ###########
-    require_once(PWD . '/routes.php'); //Include routes
+    require_once(__DIR__ . '/descartes/load.php');
 
     ############
     # SESSIONS #
@@ -20,13 +12,6 @@
     {
         $_SESSION['csrf'] = str_shuffle(uniqid().uniqid());
     }
-
-    ##############
-    # INCLUDE    #
-    ##############
-    //Use autoload
-    require_once(PWD . '/descartes/autoload.php');
-    require_once(PWD . '/vendor/autoload.php');
 
     //Routing current query
     descartes\Router::route(ROUTES, $_SERVER['REQUEST_URI']);

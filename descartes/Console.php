@@ -109,7 +109,7 @@
 				$params[$name] = $value;
 			}
 
-			$reflection = new ReflectionMethod($controller, $method);
+			$reflection = new \ReflectionMethod($controller, $method);
 			$method_arguments = [];
 
 			foreach ($reflection->getParameters() as $parameter)
@@ -169,12 +169,12 @@
                 $retour .= 'Help of Controller ' . $controller . "\n" . 
                            "Methods : \n";
 
-				$reflection = new ReflectionClass($controller);
+				$reflection = new \ReflectionClass($controller);
 				$reflection_methods = $reflection->getMethods();
 			}
 			else
 			{
-				$reflection_methods = [new ReflectionMethod($controller, $method)];
+				$reflection_methods = [new \ReflectionMethod($controller, $method)];
 				$retour .= 'Help of Controller ' . $controller . ' and method ' . $method . "\n";
 			}
 
@@ -229,7 +229,7 @@
                 return true;
             }
 
-            $reflection = new ReflectionClass($controller);
+            $reflection = new \ReflectionClass($controller);
             $reflection_method = $reflection->getMethod($method);
 
             if (!$reflection_method->isStatic())
