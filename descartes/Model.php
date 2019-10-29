@@ -214,7 +214,7 @@
             $params = array();
             foreach ($conditions as $label => $value)
             {
-                $condition = $this->evaluate_condition($label, $value);
+                $condition = $this->_evaluate_condition($label, $value);
                 $wheres[] = $condition['QUERY'];
                 $params = array_merge($params, $condition['PARAM']);
             }
@@ -271,7 +271,7 @@
          */
         protected function _select_one (string $table, array $conditions = [], ?string $order_by = null, bool $desc = false, ?int $limit = null, ?int $offset = null)
         {
-            $result = $this->select($table, $conditions, $order_by, $desc, $limit, $offset);
+            $result = $this->_select($table, $conditions, $order_by, $desc, $limit, $offset);
 
             if (empty($result[0]))
             {
@@ -291,7 +291,7 @@
             $params = array();
             foreach ($conditions as $label => $value)
             {
-                $condition = $this->evaluate_condition($label, $value);
+                $condition = $this->_evaluate_condition($label, $value);
                 $wheres[] = $condition['QUERY'];
                 $params = array_merge($params, $condition['PARAM']);
             }
@@ -336,14 +336,14 @@
             $wheres = array();
             foreach ($conditions as $label => $value)
             {
-                $condition = $this->evaluate_condition($label, $value);
+                $condition = $this->_evaluate_condition($label, $value);
                 $wheres[] = $condition['QUERY'];
                 $params = array_merge($params, $condition['PARAM']);
             }
 
 
             $query = "UPDATE `" . $table . "` SET " . implode(', ', $sets) . " WHERE 1 AND " . implode(' AND ', $wheres);
-            return $this->run_query($query, $params, self::ROWCOUNT);
+            return $this->_run_query($query, $params, self::ROWCOUNT);
         }
 
         /**
@@ -359,13 +359,13 @@
             $params = array();
             foreach ($conditions as $label => $value)
             {
-                $condition = $this->evaluate_condition($label, $value);
+                $condition = $this->_evaluate_condition($label, $value);
                 $wheres[] = $condition['QUERY'];
                 $params = array_merge($params, $condition['PARAM']);
             }
 
             $query = "DELETE FROM `" . $table . "` WHERE 1 AND " . implode(' AND ', $wheres);
-            return $this->run_query($query, $params, self::ROWCOUNT);
+            return $this->_run_query($query, $params, self::ROWCOUNT);
         }
 
         /**
@@ -388,7 +388,7 @@
             $query = "INSERT INTO `" . $table . "` (`" . implode('`, `', $field_names) . "`) VALUES(:" . implode(', :', $field_names) . ")";
 
             //On retourne le nombre de lignes insérées
-            return $this->run_query($query, $params, self::ROWCOUNT);
+            return $this->_run_query($query, $params, self::ROWCOUNT);
         }
 
     } 
