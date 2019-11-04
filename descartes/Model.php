@@ -332,6 +332,7 @@
             
             foreach ($datas as $label => $value)
             {
+                $label = preg_replace('#[^a-zA-Z0-9_]#', '', $label);
                 $params['set_' . $label] = $value;
                 $sets[] = '`' . $label . '` = :set_' . $label . ' ';
             }
@@ -385,6 +386,8 @@
 
             foreach ($datas as $field_name => $value)
             {
+                //Protect against injection in fieldname
+                $field_name = preg_replace('#[^a-zA-Z0-9_]#', '', $field_name);
                 $params[$field_name] = $value;
                 $field_names[] = $field_name;
             }
