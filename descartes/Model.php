@@ -54,28 +54,28 @@
         /**
          * Run a query and return result
          * @param string $query : Query to run
-         * @param array $datas : Datas to pass to query
+         * @param array $data : Data to pass to query
          * @param const $return_type : Type of return, by default all results, see Model constants
          * @param const $fetch_mode : Format of result from db, by default array, FETCH_ASSOC
          * @param boolean $debug : If we must return debug info instead of data, by default false
          * @return mixed : Result of query, depend of $return_type | null | array | object | int
          */
-        protected function _run_query (string $query, array $datas = array(), int $return_type = self::FETCHALL, int $fetch_mode = \PDO::FETCH_ASSOC, bool $debug = false)
+        protected function _run_query (string $query, array $data = array(), int $return_type = self::FETCHALL, int $fetch_mode = \PDO::FETCH_ASSOC, bool $debug = false)
         {
             try
             {
                 //Must convert bool to 1 or 0 because of some strange inconsistent behavior between PHP versions
-                foreach ($datas as $key => $value)
+                foreach ($data as $key => $value)
                 {
                     if (is_bool($value))
                     {
-                        $datas[$key] = (int) $value;
+                        $data[$key] = (int) $value;
                     }
                 }
 
                 $query = $this->pdo->prepare($query);
                 $query->setFetchMode($return_type);
-                $query->execute($datas);
+                $query->execute($data);
 
                 if ($debug)
                 {
@@ -144,7 +144,7 @@
         
         /**
          * Generate IN query params and values
-         * @param string $values : Values to generate in array from
+         * @param array $values : Values to generate in array from
          * @return array : Array ['QUERY' => string 'IN(...)', 'PARAMS' => [parameters to pass to execute]]
         */
         protected function _generate_in_from_array ($values)
@@ -214,6 +214,11 @@
                     $operator = '>';
                     break;
 
+                case ('%' == $first_char) :
+                    $true_fieldname = mb_substr($fieldname, 1);
+                    $operator = 'LIKE';
+                    break;
+
                 case ('=' == $first_char) :
                     $true_fieldname = mb_substr($fieldname, 1);
                     $operator = '=';
@@ -227,8 +232,11 @@
             //Protect against injection in fieldname
             $true_fieldname = preg_replace('#[^a-zA-Z0-9_]#', '', $true_fieldname);
 
-            $query = '`' . $true_fieldname . '` ' . $operator . ' :where_' . $true_fieldname;
-            $param = ['where_' . $true_fieldname => $value];
+            // Add a uid to fieldname so we can combine multiple rules on same field
+            $uid = uniqid();
+
+            $query = '`' . $true_fieldname . '` ' . $operator . ' :where_' . $true_fieldname . '_' . $uid;
+            $param = ['where_' . $true_fieldname . '_' . $uid => $value];
 
             return ['QUERY' => $query, 'PARAM' => $param];
         }
@@ -358,7 +366,6 @@
                 }
 
                 $query = "SELECT COUNT(*) as `count` FROM `" . $table . "` WHERE 1 " . (count($wheres) ? 'AND ' : '') . implode(' AND ', $wheres);
-                
                 $query = $this->pdo->prepare($query);
 
                 foreach ($params as $label => &$param)
@@ -397,18 +404,18 @@
         /**
          * Update data from table with some conditions
          * @param string $table : table name
-         * @param array $datas : new data to set
+         * @param array $data : new data to set
          * @param array $conditions : conditions of update, Les conditions pour la mise à jour sous la forme "label" => "valeur". Un operateur '<, >, <=, >=, !' peux précder le label pour modifier l'opérateur par défaut (=)
          * @param array $conditions : conditions to use, format 'fieldname' => 'value', fieldname can be preceed by operator '<, >, <=, >=, ! or = (by default)' to adapt comparaison operator
          * @return mixed : Number of line modified
          */
-        protected function _update (string $table, array $datas, array $conditions = array()) : int
+        protected function _update (string $table, array $data, array $conditions = array()) : int
         {
             $params = array();
             $sets = array();
 
             
-            foreach ($datas as $label => $value)
+            foreach ($data as $label => $value)
             {
                 $label = preg_replace('#[^a-zA-Z0-9_]#', '', $label);
                 $params['set_' . $label] = $value;
@@ -454,15 +461,15 @@
         /**
          * Insert new line into table
          * @param string $table : table name
-         * @param array $datas : new datas
+         * @param array $data : new data
          * @return mixed : null on error, number of line inserted else
          */
-        protected function _insert (string $table, array $datas) : ?int
+        protected function _insert (string $table, array $data) : ?int
         {
             $params = array();
             $field_names = array();
 
-            foreach ($datas as $field_name => $value)
+            foreach ($data as $field_name => $value)
             {
                 //Protect against injection in fieldname
                 $field_name = preg_replace('#[^a-zA-Z0-9_]#', '', $field_name);
