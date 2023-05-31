@@ -5,20 +5,28 @@
      * Define Descartes env
      */
     $http_dir_path = '/descartes'; //Path we need to put after servername in url to access app
-    $http_protocol = (isset($_SERVER['HTTPS']) ? 'https' : 'http') . '://';
-    $http_server_name = isset($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : 'localhost';
-    $http_server_port = isset($_SERVER['SERVER_PORT']) ? ($_SERVER['SERVER_PORT'] == 80) ? '' : ':' . $_SERVER['SERVER_PORT'] : '';
-    $https = $_SERVER['HTTPS'] ?? false;
+    $https = $_SERVER['HTTPS'] ?? 0;
 
-    if ( !isset($_SERVER['SERVER_PORT']) || ($_SERVER['SERVER_PORT'] == 80 && !$https) || ($_SERVER['SERVER_PORT'] == 443 && $https) )
+    // Check for proxy forward
+    $forwarded_https = ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? $_SERVER['HTTP_FORWARDED_PROTO'] ?? NULL) == 'https';
+    $forwarded_ssl = ($_SERVER['HTTP_X_FORWARDED_SSL'] ?? NULL) == 'on';
+    $proxy = $forwarded_https || $forwarded_ssl;
+    
+    $http_protocol = 'http://';
+    if ($https)
     {
-        $http_server_port = '';
-    }
-    else
-    {
-        $http_server_port = ':' . $_SERVER['SERVER_PORT'];
+        $http_protocol = 'https://';
     }
 
+    $http_server_name = $_SERVER['SERVER_NAME'] ?? 'localhost';
+
+    // Check port to only set it if not default port
+    $port = $_SERVER['SERVER_PORT'] ?? '';
+    $port = ($port == 80 && !$https) ? '' : $port;
+    $port = ($port == 443 && $https) ? '' : $port;
+    $port = $proxy ? '' : $port;
+    $http_server_port = $port ? ':' . $port : '';
+    
 
     $pwd = substr(__DIR__, 0, strrpos(__DIR__, '/'));
     $http_pwd = $http_protocol . $http_server_name . $http_server_port . $http_dir_path;
