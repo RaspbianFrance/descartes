@@ -1,4 +1,4 @@
-<?php \controllers\internals\Incs::head('Show value'); ?>
+<?php $this->render('./incs/head', ['title' => 'Show Value']); ?>
 
     <?php if ($second_value === null) { ?>
 		<h1>Must show only one value : </h1>
@@ -13,4 +13,4 @@
 		</ul>
 	<?php } ?>
 
-<?php \controllers\internals\Incs::footer(); ?>
+	<?php $this->render('./incs/footer'); ?>

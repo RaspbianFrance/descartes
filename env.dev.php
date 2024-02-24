@@ -1,9 +1,9 @@
 <?php
 	/*
-		Ce fichier défini les constantes modifiables et les options
+		This file define environment specific constants
 	*/
 
-	//On défini l'environment
+	//Define consts
     $env = [
         'DATABASE_HOST' => 'localhost',
         'DATABASE_NAME' => 'descartes_example',

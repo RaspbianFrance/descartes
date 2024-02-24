@@ -12,6 +12,48 @@ Le système tire sont nom du philosophe Français René Descartes, en hommage à
 
 
 # Documentation
-Il n'existe pas encore de documentation pour Descartes, cependant vous pouvez en grande partie vous reporter à la documentation de notre projet RaspiSMS (http://raspisms.raspbian-france.fr) en attendant que nous ayons réalisé une documentation pour Descartes.
 
-Cette courante absence de documentation ne devrait pas vous effrayer, Descartes devrait pouvoir être compris dans sa casi entièreté en 2 jours, par simple lecture du code du répertoire "mvc" et du fichier "index.php".
+## Controllers
+- **Public Controllers**:
+  - Extend `\descartes\Controller`.
+  - Responsible for processing input data, formatting them, and handling requests from users.
+  - Each function in a public controller represents a page of the application.
+  - Common processing for all routes of a controller should be done in the constructor.
+  - If you need to do some logic on all method of the controller, for example for auth or data initialization, you can do it in construct.
+
+- **Internal Controllers**:
+  - Extend `\descartes\InternalController`.
+  - Used to perform the core logic for most tasks.
+  - Handle tasks like database interactions, business logic, etc.
+
+## Models
+- Interaction with the Database.
+- Methods available to simplify database interactions (CRUD).
+- Methods in `\descartes\Model` that start with `_` provide database operations.
+
+## Templates
+- Located in the `template` directory.
+- Pages can be rendered using the `render` method of a controller.
+
+## Routes
+- Defined in `routes.php`.
+- Routes map URLs to controller actions.
+
+## Request Flow
+- The typical flow for a request:
+  1. Router calls a public controller.
+  2. Public controller calls one or more internal controllers.
+  3. Internal controllers interact with models.
+  4. Public controller renders a template.
+
+## Constants
+You can set constants by defining an array key => value in variable `$env` in following files (each file will be merged with previous file, overwriting existings constants if necessary) :
+- `descartes/env.php`
+- `env.descartes.php`
+- `env.php`
+- `env.XXX.php` where `XXX` is the value of a previously define constant `ENV`.
+
+Look into `descartes/env.php` to see default available constants.
+
+## Conclusion
+[Conclude the documentation, mentioning any additional resources or next steps.]
